@@ -44,15 +44,15 @@ public class CustomerEntity {
     @JsonBackReference
     private Set<ProductEntity> productEntities;
 
-    @OneToMany(mappedBy = "customerEntity")
+    @OneToMany(mappedBy = "id.customerId")
     @JsonBackReference
     private Set<FavoriteEntity> favoriteEntities;
 
-    @OneToMany(mappedBy = "customerEntity")
+    @OneToMany(mappedBy = "id.customerId")
     @JsonBackReference
     private Set<SearchEntity> searchEntities;
 
-    @OneToMany(mappedBy = "customerEntity")
+    @OneToMany(mappedBy = "id.customerId")
     @JsonBackReference
     private Set<ViewEntity> viewEntities;
 

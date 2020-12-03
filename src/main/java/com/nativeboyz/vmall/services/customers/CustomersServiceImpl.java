@@ -50,7 +50,7 @@ public class CustomersServiceImpl implements CustomersService {
 
     @Override
     public Page<ProductEntity> findCustomerProducts(UUID id, Pageable pageable) {
-        return productsRepository.findCustomerProducts(id, pageable);
+        return productsRepository.findByCustomerId(id, pageable);
     }
 
 }

@@ -1,13 +1,17 @@
 package com.nativeboyz.vmall.services.products;
 
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
+import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.entities.CategoryEntity;
 import com.nativeboyz.vmall.models.entities.CustomerEntity;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.models.entities.ProductImageEntity;
 import com.nativeboyz.vmall.repositories.categories.CategoriesRepository;
 import com.nativeboyz.vmall.repositories.customers.CustomersRepository;
+import com.nativeboyz.vmall.repositories.favorites.FavoritesRepository;
 import com.nativeboyz.vmall.repositories.products.ProductsRepository;
+import com.nativeboyz.vmall.repositories.rates.RatesRepository;
+import com.nativeboyz.vmall.repositories.views.ViewsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,16 +27,41 @@ public class ProductsServiceImpl implements ProductsService {
     private final CategoriesRepository categoriesRepository;
     private final CustomersRepository customersRepository;
 
+    private final ViewsRepository viewsRepository;
+    private final RatesRepository ratesRepository;
+    private final FavoritesRepository favoritesRepository;
+
     @Autowired
-    public ProductsServiceImpl(ProductsRepository productsRepository, CategoriesRepository categoriesRepository, CustomersRepository customersRepository) {
+    public ProductsServiceImpl(
+            ProductsRepository productsRepository,
+            CategoriesRepository categoriesRepository,
+            CustomersRepository customersRepository,
+            ViewsRepository viewsRepository,
+            RatesRepository ratesRepository,
+            FavoritesRepository favoritesRepository
+    ) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
         this.customersRepository = customersRepository;
+        this.viewsRepository = viewsRepository;
+        this.ratesRepository = ratesRepository;
+        this.favoritesRepository = favoritesRepository;
     }
 
     @Override
     public ProductEntity findProduct(UUID id) {
         return productsRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public ProductDto findProduct(UUID productId, UUID customerId) {
+        return new ProductDto(
+                findProduct(productId),
+                viewsRepository.countByProductId(productId),
+                favoritesRepository.countByProductId(productId),
+                ratesRepository.averageRateByProductId(productId),
+                (favoritesRepository.countByProductIdAndCustomerId(productId, customerId) > 0)
+        );
     }
 
     @Override
@@ -70,30 +99,11 @@ public class ProductsServiceImpl implements ProductsService {
 
         Set<ProductImageEntity> imageEntities = new HashSet<>();
         for (int i = 0; i < criteria.getFileNames().length; i++) {
-            imageEntities.add(new ProductImageEntity(
-                    productEntity,
-                    criteria.getFileNames()[i],
-                    i));
+            imageEntities.add(new ProductImageEntity(productEntity, criteria.getFileNames()[i], i));
         }
-
         productEntity.setProductImageEntities(imageEntities);
 
         return productsRepository.save(productEntity);
-
-        /*ProductEntity savedProduct = productsRepository.save(productEntity);
-
-        Set<ProductImageEntity> imageEntities = new HashSet<>();
-
-        for (int i = 0; i < criteria.getFileNames().length; i++) {
-            imageEntities.add(new ProductImageEntity(
-                    savedProduct,
-                    criteria.getFileNames()[i],
-                    i));
-        }
-
-        savedProduct.setProductImageEntities(imageEntities);
-
-        return savedProduct;*/
     }
 
     @Override

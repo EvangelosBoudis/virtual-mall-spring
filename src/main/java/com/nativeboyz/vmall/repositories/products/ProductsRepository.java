@@ -13,6 +13,6 @@ public interface ProductsRepository extends JpaRepository<ProductEntity, UUID> {
 
     @Query(value = "SELECT p FROM ProductEntity AS p WHERE p.customerEntity.id = :id",
             countQuery = "SELECT COUNT(p) FROM ProductEntity AS p WHERE p.customerEntity.id = :id")
-    Page<ProductEntity> findCustomerProducts(@Param("id") UUID id, Pageable pageable);
+    Page<ProductEntity> findByCustomerId(@Param("id") UUID id, Pageable pageable);
 
 }

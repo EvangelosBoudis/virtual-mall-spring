@@ -60,15 +60,15 @@ public class ProductEntity {
     @JsonIgnore
     private Set<CategoryEntity> categoryEntities;
 
-    @OneToMany(mappedBy = "productEntity")
+    @OneToMany(mappedBy = "id.productId")
     @JsonIgnore
     private Set<FavoriteEntity> favoriteEntities;
 
-    @OneToMany(mappedBy = "productEntity")
+    @OneToMany(mappedBy = "id.productId")
     @JsonIgnore
     private Set<ViewEntity> viewEntities;
 
-    @OneToMany(mappedBy = "productEntity")
+    @OneToMany(mappedBy = "id.productId")
     @JsonIgnore
     private Set<RateEntity> rateEntities;
 

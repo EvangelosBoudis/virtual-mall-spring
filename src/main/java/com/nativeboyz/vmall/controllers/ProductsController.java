@@ -1,6 +1,7 @@
 package com.nativeboyz.vmall.controllers;
 
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
+import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.models.entities.ProductImageEntity;
 import com.nativeboyz.vmall.models.criteria.PageCriteria;
@@ -37,15 +38,16 @@ public class ProductsController {
 
     @GetMapping()
     public Page<ProductEntity> getProducts(PageCriteria criteria) {
-        logger.info("pre service");
-        Page<ProductEntity> products = productsService.findProducts(criteria.asPageable());
-        logger.info("after service");
-        return products;
+        //logger.info("pre service");
+        return productsService.findProducts(criteria.asPageable());
     }
 
     @GetMapping("/{id}")
-    public ProductEntity getProduct(@PathVariable UUID id) {
-        return productsService.findProduct(id);
+    public ProductDto getProduct(
+            @PathVariable UUID id,
+            @RequestParam("customerId") UUID customerId // TODO: Replace with JWT
+    ) {
+        return productsService.findProduct(id, customerId);
     }
 
     @DeleteMapping("/{id}")
