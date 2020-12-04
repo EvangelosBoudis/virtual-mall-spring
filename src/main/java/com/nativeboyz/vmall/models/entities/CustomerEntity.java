@@ -1,6 +1,7 @@
 package com.nativeboyz.vmall.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +46,15 @@ public class CustomerEntity {
     private Set<ProductEntity> productEntities;
 
     @OneToMany(mappedBy = "id.customerId")
-    @JsonBackReference
+    @JsonIgnore
     private Set<FavoriteEntity> favoriteEntities;
 
     @OneToMany(mappedBy = "id.customerId")
-    @JsonBackReference
+    @JsonIgnore
     private Set<SearchEntity> searchEntities;
 
     @OneToMany(mappedBy = "id.customerId")
-    @JsonBackReference
+    @JsonIgnore
     private Set<ViewEntity> viewEntities;
 
     public CustomerEntity() { }
@@ -136,7 +137,6 @@ public class CustomerEntity {
     }
 
     public Set<ProductEntity> getProductEntities() {
-        logger.info("getProductEntities");
         return productEntities;
     }
 
@@ -145,7 +145,6 @@ public class CustomerEntity {
     }
 
     public Set<FavoriteEntity> getFavoriteEntities() {
-        logger.info("getFavoriteEntities");
         return favoriteEntities;
     }
 
@@ -154,7 +153,6 @@ public class CustomerEntity {
     }
 
     public Set<SearchEntity> getSearchEntities() {
-        logger.info("getSearchEntities");
         return searchEntities;
     }
 
@@ -163,7 +161,6 @@ public class CustomerEntity {
     }
 
     public Set<ViewEntity> getViewEntities() {
-        logger.info("getViewEntities");
         return viewEntities;
     }
 

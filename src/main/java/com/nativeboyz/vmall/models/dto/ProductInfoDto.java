@@ -1,30 +1,40 @@
 package com.nativeboyz.vmall.models.dto;
 
+import com.nativeboyz.vmall.models.entities.CategoryEntity;
+import com.nativeboyz.vmall.models.entities.ProductEntity;
+import com.nativeboyz.vmall.models.entities.ProductImageEntity;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class ProductDto {
+public class ProductInfoDto extends ProductDto {
 
-    protected UUID id;
-    protected String name;
-    protected Float price;
-    protected Timestamp uploadTime;
+    private String description;
+    private String details;
+    private String[] hashTags;
 
-    protected UUID ownerId;
-    protected String[] images;
-    protected UUID[] categories;
+    public ProductInfoDto(ProductEntity productEntity) {
 
-    protected Integer viewsQty;
-    protected Integer favoritesQty;
-    protected Float avgRate;
-    protected Boolean favorite;
+        super(productEntity.getId(), productEntity.getName(),
+                productEntity.getPrice(), productEntity.getUploadTime());
 
-    public ProductDto(UUID id, String name, Float price, Timestamp uploadTime) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.uploadTime = uploadTime;
+        ownerId = productEntity.getCustomerEntity().getId();
+
+        images = productEntity.getProductImageEntities()
+                .stream()
+                .map(ProductImageEntity::getImageName)
+                .collect(Collectors.toList()).toArray(String[]::new);
+
+        categories = productEntity.getCategoryEntities()
+                .stream()
+                .map(CategoryEntity::getId)
+                .collect(Collectors.toList()).toArray(UUID[]::new);
+
+        description = productEntity.getProductInfoEntity().getDescription();
+        details = productEntity.getProductInfoEntity().getDetails();
+        hashTags = productEntity.getProductInfoEntity().getHashTags();
     }
 
     public UUID getId() {
@@ -57,6 +67,30 @@ public class ProductDto {
 
     public void setUploadTime(Timestamp uploadTime) {
         this.uploadTime = uploadTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public String[] getHashTags() {
+        return hashTags;
+    }
+
+    public void setHashTags(String[] hashTags) {
+        this.hashTags = hashTags;
     }
 
     public UUID getOwnerId() {
@@ -117,11 +151,10 @@ public class ProductDto {
 
     @Override
     public String toString() {
-        return "ProductDto{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", uploadTime=" + uploadTime +
+        return "ProductInfoDto{" +
+                "description='" + description + '\'' +
+                ", details='" + details + '\'' +
+                ", hashTags=" + Arrays.toString(hashTags) +
                 ", ownerId=" + ownerId +
                 ", images=" + Arrays.toString(images) +
                 ", categories=" + Arrays.toString(categories) +
@@ -129,6 +162,10 @@ public class ProductDto {
                 ", favoritesQty=" + favoritesQty +
                 ", avgRate=" + avgRate +
                 ", favorite=" + favorite +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", uploadTime=" + uploadTime +
                 '}';
     }
 }

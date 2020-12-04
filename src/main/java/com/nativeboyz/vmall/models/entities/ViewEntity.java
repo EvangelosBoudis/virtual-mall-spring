@@ -16,14 +16,14 @@ public class ViewEntity {
     @EmbeddedId
     private CustomerProductIdentity id;
 
-    @Column(name = "last_view")
-    private Timestamp lastView;
+    @Column(name = "view_timestamp")
+    private Timestamp viewTimestamp;
 
     public ViewEntity() { }
 
-    public ViewEntity(CustomerProductIdentity id, Timestamp lastView) {
+    public ViewEntity(CustomerProductIdentity id, Timestamp viewTimestamp) {
         this.id = id;
-        this.lastView = lastView;
+        this.viewTimestamp = viewTimestamp;
     }
 
     public CustomerProductIdentity getId() {
@@ -34,19 +34,19 @@ public class ViewEntity {
         this.id = id;
     }
 
-    public Timestamp getLastView() {
-        return lastView;
+    public Timestamp getViewTimestamp() {
+        return viewTimestamp;
     }
 
-    public void setLastView(Timestamp lastView) {
-        this.lastView = lastView;
+    public void setViewTimestamp(Timestamp viewTimestamp) {
+        this.viewTimestamp = viewTimestamp;
     }
 
     @Override
     public String toString() {
         return "ViewEntity{" +
                 "id=" + id +
-                ", lastView=" + lastView +
+                ", viewTimestamp=" + viewTimestamp +
                 '}';
     }
 }

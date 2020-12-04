@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,16 +32,11 @@ public class ProductEntity {
     @Column(name = "upload_time")
     private Timestamp uploadTime;
 
-    @Column(name = "description", length = 1000, nullable = false)
-    private String description;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "info_id")
+    private ProductInfoEntity productInfoEntity;
 
-    @Column(name = "details", length = 1000)
-    private String details;
-
-    @Column(name = "hashTags")
-    private String[] hashTags;
-
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     @JsonIgnore
     private CustomerEntity customerEntity;
@@ -54,8 +48,8 @@ public class ProductEntity {
     @ManyToMany()
     @JoinTable(
             name = "products_categories",
-            joinColumns = @JoinColumn(name = "product_id"), // product id
-            inverseJoinColumns = @JoinColumn(name = "category_id") // category id
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     @JsonIgnore
     private Set<CategoryEntity> categoryEntities;
@@ -74,17 +68,10 @@ public class ProductEntity {
 
     public ProductEntity() { }
 
-    public ProductEntity(String name, Float price, String description, String details, String[] hashTags) {
+    public ProductEntity(String name, Float price) {
         this.name = name;
         this.price = price;
         this.uploadTime = new Timestamp(System.currentTimeMillis());
-        this.description = description;
-        this.details = details;
-        this.hashTags = hashTags;
-    }
-
-    public static Logger getLogger() {
-        return logger;
     }
 
     public UUID getId() {
@@ -119,28 +106,12 @@ public class ProductEntity {
         this.uploadTime = uploadTime;
     }
 
-    public String getDescription() {
-        return description;
+    public ProductInfoEntity getProductInfoEntity() {
+        return productInfoEntity;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public String[] getHashTags() {
-        return hashTags;
-    }
-
-    public void setHashTags(String[] hashTags) {
-        this.hashTags = hashTags;
+    public void setProductInfoEntity(ProductInfoEntity productInfoEntity) {
+        this.productInfoEntity = productInfoEntity;
     }
 
     public CustomerEntity getCustomerEntity() {
@@ -204,9 +175,7 @@ public class ProductEntity {
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", uploadTime=" + uploadTime +
-                ", description='" + description + '\'' +
-                ", details='" + details + '\'' +
-                ", hashTags=" + Arrays.toString(hashTags) +
+                ", productInfoEntity=" + productInfoEntity +
                 ", customerEntity=" + customerEntity +
                 ", productImageEntities=" + productImageEntities +
                 ", categoryEntities=" + categoryEntities +

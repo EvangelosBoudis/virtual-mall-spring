@@ -2,13 +2,12 @@ package com.nativeboyz.vmall.services.products;
 
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
-import com.nativeboyz.vmall.models.entities.CategoryEntity;
-import com.nativeboyz.vmall.models.entities.CustomerEntity;
-import com.nativeboyz.vmall.models.entities.ProductEntity;
-import com.nativeboyz.vmall.models.entities.ProductImageEntity;
+import com.nativeboyz.vmall.models.dto.ProductInfoDto;
+import com.nativeboyz.vmall.models.entities.*;
 import com.nativeboyz.vmall.repositories.categories.CategoriesRepository;
 import com.nativeboyz.vmall.repositories.customers.CustomersRepository;
 import com.nativeboyz.vmall.repositories.favorites.FavoritesRepository;
+import com.nativeboyz.vmall.repositories.productImages.ProductImagesRepository;
 import com.nativeboyz.vmall.repositories.products.ProductsRepository;
 import com.nativeboyz.vmall.repositories.rates.RatesRepository;
 import com.nativeboyz.vmall.repositories.views.ViewsRepository;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductsServiceImpl implements ProductsService {
@@ -31,6 +31,8 @@ public class ProductsServiceImpl implements ProductsService {
     private final RatesRepository ratesRepository;
     private final FavoritesRepository favoritesRepository;
 
+    private final ProductImagesRepository productImagesRepository;
+
     @Autowired
     public ProductsServiceImpl(
             ProductsRepository productsRepository,
@@ -38,35 +40,55 @@ public class ProductsServiceImpl implements ProductsService {
             CustomersRepository customersRepository,
             ViewsRepository viewsRepository,
             RatesRepository ratesRepository,
-            FavoritesRepository favoritesRepository
-    ) {
+            FavoritesRepository favoritesRepository,
+            ProductImagesRepository productImagesRepository) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
         this.customersRepository = customersRepository;
         this.viewsRepository = viewsRepository;
         this.ratesRepository = ratesRepository;
         this.favoritesRepository = favoritesRepository;
+        this.productImagesRepository = productImagesRepository;
     }
 
     @Override
-    public ProductEntity findProduct(UUID id) {
-        return productsRepository.findById(id).orElseThrow();
+    public List<String> findProductImages(UUID productId) {
+        return productImagesRepository
+                .findByProductId(productId)
+                .stream()
+                .map(ProductImageEntity::getImageName)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public ProductDto findProduct(UUID productId, UUID customerId) {
-        return new ProductDto(
-                findProduct(productId),
-                viewsRepository.countByProductId(productId),
-                favoritesRepository.countByProductId(productId),
-                ratesRepository.averageRateByProductId(productId),
-                (favoritesRepository.countByProductIdAndCustomerId(productId, customerId) > 0)
-        );
+    public ProductInfoDto findProduct(UUID productId, UUID customerId) {
+
+        ProductEntity entity = productsRepository
+                .findById(productId)
+                .orElseThrow();
+
+        ProductInfoDto dto = new ProductInfoDto(entity);
+
+        dto.setViewsQty(viewsRepository.countByProductId(productId));
+        dto.setFavoritesQty(favoritesRepository.countByProductId(productId));
+        dto.setAvgRate(ratesRepository.averageRateByProductId(productId));
+        dto.setFavorite((favoritesRepository.countByProductIdAndCustomerId(productId, customerId) > 0));
+
+        return dto;
     }
 
     @Override
     public Page<ProductEntity> findProducts(Pageable pageable) {
         return productsRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<ProductDto> findProducts(Pageable pageable, UUID customerId) {
+
+
+
+
+        return null;
     }
 
     @Override
@@ -88,13 +110,17 @@ public class ProductsServiceImpl implements ProductsService {
 
         ProductEntity productEntity = new ProductEntity(
                 criteria.getName(),
-                criteria.getPrice(),
+                criteria.getPrice()
+        );
+
+        ProductInfoEntity productInfoEntity = new ProductInfoEntity(
                 criteria.getDescription(),
                 criteria.getDetails(),
                 criteria.getHashTags()
         );
 
         productEntity.setCustomerEntity(customerEntity);
+        productEntity.setProductInfoEntity(productInfoEntity);
         productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
 
         Set<ProductImageEntity> imageEntities = new HashSet<>();

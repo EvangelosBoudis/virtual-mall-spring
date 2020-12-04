@@ -1,9 +1,8 @@
 package com.nativeboyz.vmall.controllers;
 
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
-import com.nativeboyz.vmall.models.dto.ProductDto;
+import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
-import com.nativeboyz.vmall.models.entities.ProductImageEntity;
 import com.nativeboyz.vmall.models.criteria.PageCriteria;
 import com.nativeboyz.vmall.models.criteria.product.ProductFileCriteria;
 import com.nativeboyz.vmall.models.dto.TransactionDto;
@@ -17,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -43,7 +40,7 @@ public class ProductsController {
     }
 
     @GetMapping("/{id}")
-    public ProductDto getProduct(
+    public ProductInfoDto getProduct(
             @PathVariable UUID id,
             @RequestParam("customerId") UUID customerId // TODO: Replace with JWT
     ) {
@@ -52,13 +49,7 @@ public class ProductsController {
 
     @DeleteMapping("/{id}")
     public TransactionDto deleteProduct(@PathVariable UUID id) {
-        ProductEntity productEntity = productsService.findProduct(id);
-        List<String> imageNames = productEntity
-                .getProductImageEntities()
-                .stream()
-                .map(ProductImageEntity::getImageName)
-                .collect(Collectors.toList());
-        storageService.deleteIfExists(imageNames);
+        storageService.deleteIfExists(productsService.findProductImages(id));
         productsService.deleteProduct(id);
         return new TransactionDto("Product: " + id.toString() + " deleted successfully");
     }

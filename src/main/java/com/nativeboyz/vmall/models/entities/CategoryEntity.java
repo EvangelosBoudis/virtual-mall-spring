@@ -38,8 +38,8 @@ public class CategoryEntity {
     @ManyToMany()
     @JoinTable(
             name = "products_categories",
-            joinColumns = @JoinColumn(name = "category_id"), // category id
-            inverseJoinColumns = @JoinColumn(name = "product_id") // product id
+            joinColumns = @JoinColumn(name = "category_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     @JsonBackReference
     private Set<ProductEntity> productEntities;
@@ -91,7 +91,6 @@ public class CategoryEntity {
     }
 
     public Set<ProductEntity> getProductEntities() {
-        logger.info("getProductEntities");
         return productEntities;
     }
 
