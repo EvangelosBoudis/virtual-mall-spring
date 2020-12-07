@@ -1,7 +1,7 @@
 package com.nativeboyz.vmall.services.products;
 
 import com.nativeboyz.vmall.models.CustomerProductEntity;
-import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
+import com.nativeboyz.vmall.models.criteria.product.ProductCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.*;
@@ -92,20 +92,11 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<String> findProductImages(UUID productId) {
-        return productImagesRepository
-                .findByProductId(productId)
-                .stream()
-                .map(ProductImageEntity::getImageName)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
-    public ProductEntity saveProduct(ProductTransformedCriteria criteria) {
+    public ProductEntity saveProduct(ProductCriteria criteria, String[] fileNames) {
 
         CustomerEntity customerEntity = customersRepository
-                .findById(criteria.getUploaderId())
+                .findById(criteria.getOwnerId())
                 .orElseThrow();
 
         List<CategoryEntity> categoryEntities = categoriesRepository
@@ -127,8 +118,8 @@ public class ProductsServiceImpl implements ProductsService {
         productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
 
         Set<ProductImageEntity> imageEntities = new HashSet<>();
-        for (int i = 0; i < criteria.getFileNames().length; i++) {
-            imageEntities.add(new ProductImageEntity(productEntity, criteria.getFileNames()[i], i));
+        for (int i = 0; i < fileNames.length; i++) {
+            imageEntities.add(new ProductImageEntity(productEntity, fileNames[i], i));
         }
         productEntity.setProductImageEntities(imageEntities);
 
@@ -136,8 +127,22 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
+    public ProductEntity updateProduct(UUID productId, ProductCriteria criteria, String[] fileNames) {
+        return null;
+    }
+
+    @Override
     public void deleteProduct(UUID id) {
         productsRepository.deleteById(id);
+    }
+
+    @Override
+    public List<String> findProductImages(UUID productId) {
+        return productImagesRepository
+                .findByProductId(productId)
+                .stream()
+                .map(ProductImageEntity::getImageName)
+                .collect(Collectors.toList());
     }
 
     private <T extends ProductDto> T applyAdditionalInfo(T dto, UUID customerId) {

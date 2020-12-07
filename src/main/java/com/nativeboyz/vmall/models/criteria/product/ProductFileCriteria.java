@@ -14,8 +14,18 @@ public class ProductFileCriteria extends ProductCriteria {
     @NotEmpty
     private MultipartFile[] files;
 
-    public ProductFileCriteria(@NotNull @NotBlank String name, @NotNull Float price, @NotNull @NotBlank String description, String details, String[] hashTags, @NotNull @NotBlank UUID[] categories, @NotNull @NotBlank UUID uploaderId, @NotNull @NotEmpty MultipartFile[] files) {
-        super(name, price, description, details, hashTags, categories, uploaderId);
+    public ProductFileCriteria(
+            @NotNull UUID ownerId,
+            @NotNull @NotBlank String name,
+            @NotNull Float price,
+            @NotNull @NotEmpty UUID[] categories,
+            @NotNull @NotBlank String description,
+            String details,
+            String[] hashTags,
+            String[] previousFileNames,
+            @NotNull @NotEmpty MultipartFile[] files
+    ) {
+        super(ownerId, name, price, categories, description, details, hashTags, previousFileNames);
         this.files = files;
     }
 
@@ -31,13 +41,14 @@ public class ProductFileCriteria extends ProductCriteria {
     public String toString() {
         return "ProductFileCriteria{" +
                 "files=" + Arrays.toString(files) +
+                ", ownerId=" + ownerId +
                 ", name='" + name + '\'' +
                 ", price=" + price +
+                ", categories=" + Arrays.toString(categories) +
                 ", description='" + description + '\'' +
                 ", details='" + details + '\'' +
                 ", hashTags=" + Arrays.toString(hashTags) +
-                ", categories=" + Arrays.toString(categories) +
-                ", uploaderId=" + uploaderId +
+                ", previousFileNames=" + Arrays.toString(previousFileNames) +
                 '}';
     }
 }

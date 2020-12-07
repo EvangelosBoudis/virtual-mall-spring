@@ -9,11 +9,18 @@ import java.util.UUID;
 public class ProductCriteria {
 
     @NotNull
+    protected UUID ownerId; // TODO: Retrieve from JWT
+
+    @NotNull
     @NotBlank
     protected String name;
 
     @NotNull
     protected Float price;
+
+    @NotNull
+    @NotEmpty
+    protected UUID[] categories;
 
     @NotNull
     @NotBlank
@@ -23,21 +30,34 @@ public class ProductCriteria {
 
     protected String[] hashTags;
 
-    @NotNull
-    @NotEmpty
-    protected UUID[] categories;
+    protected String[] previousFileNames;
 
-    @NotNull
-    protected UUID uploaderId; // TODO: Retrieve from JWT
-
-    public ProductCriteria(@NotNull @NotBlank String name, @NotNull Float price, @NotNull @NotBlank String description, String details, String[] hashTags, @NotNull @NotBlank UUID[] categories, @NotNull @NotBlank UUID uploaderId) {
+    public ProductCriteria(
+            @NotNull UUID ownerId,
+            @NotNull @NotBlank String name,
+            @NotNull Float price,
+            @NotNull @NotEmpty UUID[] categories,
+            @NotNull @NotBlank String description,
+            String details,
+            String[] hashTags,
+            String[] previousFileNames
+    ) {
+        this.ownerId = ownerId;
         this.name = name;
         this.price = price;
+        this.categories = categories;
         this.description = description;
         this.details = details;
         this.hashTags = hashTags;
-        this.categories = categories;
-        this.uploaderId = uploaderId;
+        this.previousFileNames = previousFileNames;
+    }
+
+    public UUID getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = ownerId;
     }
 
     public String getName() {
@@ -54,6 +74,14 @@ public class ProductCriteria {
 
     public void setPrice(Float price) {
         this.price = price;
+    }
+
+    public UUID[] getCategories() {
+        return categories;
+    }
+
+    public void setCategories(UUID[] categories) {
+        this.categories = categories;
     }
 
     public String getDescription() {
@@ -80,32 +108,25 @@ public class ProductCriteria {
         this.hashTags = hashTags;
     }
 
-    public UUID[] getCategories() {
-        return categories;
+    public String[] getPreviousFileNames() {
+        return previousFileNames;
     }
 
-    public void setCategories(UUID[] categories) {
-        this.categories = categories;
-    }
-
-    public UUID getUploaderId() {
-        return uploaderId;
-    }
-
-    public void setUploaderId(UUID uploaderId) {
-        this.uploaderId = uploaderId;
+    public void setPreviousFileNames(String[] previousFileNames) {
+        this.previousFileNames = previousFileNames;
     }
 
     @Override
     public String toString() {
         return "ProductCriteria{" +
-                "name='" + name + '\'' +
+                "ownerId=" + ownerId +
+                ", name='" + name + '\'' +
                 ", price=" + price +
+                ", categories=" + Arrays.toString(categories) +
                 ", description='" + description + '\'' +
                 ", details='" + details + '\'' +
                 ", hashTags=" + Arrays.toString(hashTags) +
-                ", categories=" + Arrays.toString(categories) +
-                ", uploaderId=" + uploaderId +
+                ", previousFileNames=" + Arrays.toString(previousFileNames) +
                 '}';
     }
 }

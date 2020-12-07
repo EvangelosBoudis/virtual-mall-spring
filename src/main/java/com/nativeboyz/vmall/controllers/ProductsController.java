@@ -1,6 +1,5 @@
 package com.nativeboyz.vmall.controllers;
 
-import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
@@ -17,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -48,26 +49,42 @@ public class ProductsController {
         return productsService.findProduct(id, customerId);
     }
 
-    @GetMapping("/{id}/info/")
+    @GetMapping("/{id}/info")
     public ProductInfoDto getProductInfo(
             @PathVariable UUID id,
             @RequestParam("customerId") UUID customerId
     ) {
         // TODO: Replace RequestParam with JWT
-        System.out.println("Kalispera sti parea");
         return productsService.findProductInfo(id, customerId);
     }
 
     @PostMapping()
     public ProductEntity createProduct(@Valid ProductFileCriteria criteria) {
-        String[] imagesNames = storageService
+        String[] fileNames = storageService
                 .save(Arrays.asList(criteria.getFiles()))
                 .toArray(String[]::new);
 
-        return productsService.saveProduct(new ProductTransformedCriteria(criteria, imagesNames));
+        return productsService.saveProduct(criteria, fileNames);
     }
 
-    // TODO: Update
+    @PutMapping("/{id}")
+    public ProductEntity updateProduct(
+            @PathVariable UUID id,
+            @Valid ProductFileCriteria criteria
+    ) {
+        List<String> filesForDelete = productsService
+                .findProductImages(id).stream()
+                .filter(img -> !Arrays.asList(criteria.getPreviousFileNames()).contains(img))
+                .collect(Collectors.toList());
+
+        storageService.deleteIfExists(filesForDelete);
+
+        String[] fileNames = storageService
+                .save(Arrays.asList(criteria.getFiles()))
+                .toArray(String[]::new);
+
+        return productsService.updateProduct(id, criteria, fileNames);
+    }
 
     @DeleteMapping("/{id}")
     public TransactionDto deleteProduct(@PathVariable UUID id) {
