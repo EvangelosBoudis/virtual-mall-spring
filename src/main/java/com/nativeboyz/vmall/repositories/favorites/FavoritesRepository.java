@@ -11,16 +11,16 @@ import java.util.UUID;
 
 public interface FavoritesRepository extends JpaRepository<FavoriteEntity, CustomerProductIdentity> {
 
+    @Query("SELECT f FROM FavoriteEntity AS f WHERE f.id.productId IN :ids")
+    List<FavoriteEntity> findAllByProductId(@Param("ids") List<UUID> ids);
+
     @Query("SELECT COUNT(f) FROM FavoriteEntity AS f WHERE f.id.productId = :id")
-    Integer countProductFavorites(@Param("id") UUID id);
+    Integer countByProductId(@Param("id") UUID id);
 
     @Query("SELECT COUNT(f) FROM FavoriteEntity AS f WHERE " +
             "f.id.customerId = :customerId AND " +
             "f.id.productId = :productId AND " +
             "f.status = TRUE")
-    Integer countByProductIdAndCustomerId(@Param("productId") UUID productId, @Param("customerId") UUID customerId);
-
-    @Query("SELECT f FROM FavoriteEntity AS f WHERE f.id.productId IN :ids")
-    List<FavoriteEntity> findAllByProductId(@Param("ids") List<UUID> ids);
+    Integer isFavoriteByCustomer(@Param("productId") UUID productId, @Param("customerId") UUID customerId);
 
 }

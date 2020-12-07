@@ -12,15 +12,13 @@ import java.util.UUID;
 
 public interface ProductsService {
 
-    List<String> findProductImages(UUID productId);
+    ProductDto findProduct(UUID productId, UUID customerId);
 
-    ProductInfoDto findProduct(UUID productId, UUID customerId);
-
-    Page<ProductEntity> findProducts(Pageable pageable);
+    ProductInfoDto findProductInfo(UUID productId, UUID customerId);
 
     Page<ProductDto> findProducts(Pageable pageable, UUID customerId);
 
-    ProductEntity saveProduct(ProductEntity entity);
+    List<String> findProductImages(UUID productId);
 
     ProductEntity saveProduct(ProductTransformedCriteria criteria);
 

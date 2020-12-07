@@ -53,34 +53,15 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<String> findProductImages(UUID productId) {
-        return productImagesRepository
-                .findByProductId(productId)
-                .stream()
-                .map(ProductImageEntity::getImageName)
-                .collect(Collectors.toList());
+    public ProductDto findProduct(UUID productId, UUID customerId) {
+        ProductEntity entity = productsRepository.findById(productId).orElseThrow();
+        return applyAdditionalInfo(new ProductDto(entity), customerId);
     }
 
     @Override
-    public ProductInfoDto findProduct(UUID productId, UUID customerId) {
-
-        ProductEntity entity = productsRepository
-                .findById(productId)
-                .orElseThrow();
-
-        ProductInfoDto dto = new ProductInfoDto(entity);
-
-        dto.setViewsQty(viewsRepository.countProductViews(productId));
-        dto.setFavoritesQty(favoritesRepository.countProductFavorites(productId));
-        dto.setAvgRate(ratesRepository.findAverageRate(productId));
-        dto.setFavorite((favoritesRepository.countByProductIdAndCustomerId(productId, customerId) > 0));
-
-        return dto;
-    }
-
-    @Override
-    public Page<ProductEntity> findProducts(Pageable pageable) {
-        return productsRepository.findAll(pageable);
+    public ProductInfoDto findProductInfo(UUID productId, UUID customerId) {
+        ProductEntity entity = productsRepository.findById(productId).orElseThrow();
+        return applyAdditionalInfo(new ProductInfoDto(entity), customerId);
     }
 
     @Override
@@ -96,7 +77,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         Map<UUID, Integer> viewMap = mapCount(viewsRepository.findAllByProductId(ids));
         Map<UUID, Integer> favoriteMap = mapCount(favoritesRepository.findAllByProductId(ids));
-        Map<UUID, Float> avgRateMap = mapAvgRate(ratesRepository.findAllByProductId(ids));
+        Map<UUID, Float> rateMap = mapAvgRate(ratesRepository.findAllByProductId(ids));
 
         products.forEach(product -> {
             Integer viewsQty = viewMap.get(product.getId());
@@ -104,16 +85,19 @@ public class ProductsServiceImpl implements ProductsService {
 
             product.setViewsQty(viewsQty != null ? viewsQty : 0);
             product.setFavoritesQty(favoritesQty != null ? favoritesQty : 0);
-            product.setAvgRate(avgRateMap.get(product.getId()));
+            product.setAvgRate(rateMap.get(product.getId()));
         });
 
         return products;
     }
 
     @Override
-    @Transactional
-    public ProductEntity saveProduct(ProductEntity entity) {
-        return productsRepository.save(entity);
+    public List<String> findProductImages(UUID productId) {
+        return productImagesRepository
+                .findByProductId(productId)
+                .stream()
+                .map(ProductImageEntity::getImageName)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -154,6 +138,15 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public void deleteProduct(UUID id) {
         productsRepository.deleteById(id);
+    }
+
+    private <T extends ProductDto> T applyAdditionalInfo(T dto, UUID customerId) {
+        UUID productId = dto.getId();
+        dto.setViewsQty(viewsRepository.countByProductId(productId));
+        dto.setFavoritesQty(favoritesRepository.countByProductId(productId));
+        dto.setAvgRate(ratesRepository.avgRateByProductId(productId));
+        dto.setFavorite((favoritesRepository.isFavoriteByCustomer(productId, customerId) > 0));
+        return dto;
     }
 
     private <T extends CustomerProductEntity> Map<UUID, Integer> mapCount(List<T> entities) {

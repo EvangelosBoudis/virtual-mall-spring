@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public interface RatesRepository extends JpaRepository<RateEntity, CustomerProductIdentity> {
 
-    @Query("SELECT AVG(r.rate) FROM RateEntity AS r WHERE r.id.productId = :id")
-    Float findAverageRate(@Param("id") UUID id);
-
     @Query("SELECT r FROM RateEntity AS r WHERE r.id.productId IN :ids")
     List<RateEntity> findAllByProductId(@Param("ids") List<UUID> ids);
+
+    @Query("SELECT AVG(r.rate) FROM RateEntity AS r WHERE r.id.productId = :id")
+    Float avgRateByProductId(@Param("id") UUID id);
 
 }

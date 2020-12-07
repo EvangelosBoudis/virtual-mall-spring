@@ -11,10 +11,10 @@ import java.util.UUID;
 
 public interface ViewsRepository extends JpaRepository<ViewEntity, CustomerProductIdentity> {
 
-    @Query("SELECT COUNT(v) FROM ViewEntity AS v WHERE v.id.productId = :id")
-    Integer countProductViews(@Param("id") UUID id);
-
     @Query("SELECT v FROM ViewEntity AS v WHERE v.id.productId IN :ids")
     List<ViewEntity> findAllByProductId(@Param("ids") List<UUID> ids);
+
+    @Query("SELECT COUNT(v) FROM ViewEntity AS v WHERE v.id.productId = :id")
+    Integer countByProductId(@Param("id") UUID id);
 
 }

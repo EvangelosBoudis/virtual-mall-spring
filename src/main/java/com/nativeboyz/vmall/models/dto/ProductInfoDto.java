@@ -12,6 +12,9 @@ public class ProductInfoDto extends ProductDto {
 
     public ProductInfoDto(ProductEntity entity) {
         super(entity);
+        description = entity.getProductInfoEntity().getDescription();
+        details = entity.getProductInfoEntity().getDetails();
+        hashTags = entity.getProductInfoEntity().getHashTags();
     }
 
     public String getDescription() {

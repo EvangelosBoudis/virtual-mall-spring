@@ -37,23 +37,25 @@ public class ProductsController {
     @GetMapping()
     public Page<ProductDto> getProducts(PageCriteria criteria) {
         return productsService.findProducts(criteria.asPageable(), null);
-        // logger.info("pre service");
-        // return productsService.findProducts(criteria.asPageable());
     }
 
     @GetMapping("/{id}")
-    public ProductInfoDto getProduct(
+    public ProductDto getProduct(
             @PathVariable UUID id,
-            @RequestParam("customerId") UUID customerId // TODO: Replace with JWT
+            @RequestParam("customerId") UUID customerId
     ) {
+        // TODO: Replace RequestParam with JWT
         return productsService.findProduct(id, customerId);
     }
 
-    @DeleteMapping("/{id}")
-    public TransactionDto deleteProduct(@PathVariable UUID id) {
-        storageService.deleteIfExists(productsService.findProductImages(id));
-        productsService.deleteProduct(id);
-        return new TransactionDto("Product: " + id.toString() + " deleted successfully");
+    @GetMapping("/{id}/info/")
+    public ProductInfoDto getProductInfo(
+            @PathVariable UUID id,
+            @RequestParam("customerId") UUID customerId
+    ) {
+        // TODO: Replace RequestParam with JWT
+        System.out.println("Kalispera sti parea");
+        return productsService.findProductInfo(id, customerId);
     }
 
     @PostMapping()
@@ -63,6 +65,15 @@ public class ProductsController {
                 .toArray(String[]::new);
 
         return productsService.saveProduct(new ProductTransformedCriteria(criteria, imagesNames));
+    }
+
+    // TODO: Update
+
+    @DeleteMapping("/{id}")
+    public TransactionDto deleteProduct(@PathVariable UUID id) {
+        storageService.deleteIfExists(productsService.findProductImages(id));
+        productsService.deleteProduct(id);
+        return new TransactionDto("Product: " + id.toString() + " deleted successfully");
     }
 
 }
