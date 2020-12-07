@@ -36,34 +36,28 @@ public class ProductEntity {
     @JoinColumn(name = "info_id")
     private ProductInfoEntity productInfoEntity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
-    @JsonIgnore
     private CustomerEntity customerEntity;
 
-    @OneToMany(mappedBy = "productEntity", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "productEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<ProductImageEntity> productImageEntities;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "products_categories",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    @JsonIgnore
     private Set<CategoryEntity> categoryEntities;
 
-    @OneToMany(mappedBy = "id.productId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.productId", fetch = FetchType.LAZY)
     private Set<FavoriteEntity> favoriteEntities;
 
-    @OneToMany(mappedBy = "id.productId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.productId", fetch = FetchType.LAZY)
     private Set<ViewEntity> viewEntities;
 
-    @OneToMany(mappedBy = "id.productId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.productId", fetch = FetchType.LAZY)
     private Set<RateEntity> rateEntities;
 
     public ProductEntity() { }
@@ -114,6 +108,7 @@ public class ProductEntity {
         this.productInfoEntity = productInfoEntity;
     }
 
+    @JsonIgnore
     public CustomerEntity getCustomerEntity() {
         logger.info("getCustomerEntity");
         return customerEntity;
@@ -123,6 +118,7 @@ public class ProductEntity {
         this.customerEntity = customerEntity;
     }
 
+    @JsonManagedReference
     public Set<ProductImageEntity> getProductImageEntities() {
         logger.info("getProductImageEntities");
         return productImageEntities;
@@ -132,6 +128,7 @@ public class ProductEntity {
         this.productImageEntities = productImageEntities;
     }
 
+    @JsonIgnore
     public Set<CategoryEntity> getCategoryEntities() {
         logger.info("getCategoryEntities");
         return categoryEntities;
@@ -141,6 +138,7 @@ public class ProductEntity {
         this.categoryEntities = categoryEntities;
     }
 
+    @JsonIgnore
     public Set<FavoriteEntity> getFavoriteEntities() {
         logger.info("getFavoriteEntities");
         return favoriteEntities;
@@ -150,6 +148,7 @@ public class ProductEntity {
         this.favoriteEntities = favoriteEntities;
     }
 
+    @JsonIgnore
     public Set<ViewEntity> getViewEntities() {
         logger.info("getViewEntities");
         return viewEntities;
@@ -159,6 +158,7 @@ public class ProductEntity {
         this.viewEntities = viewEntities;
     }
 
+    @JsonIgnore
     public Set<RateEntity> getRateEntities() {
         logger.info("getRateEntities");
         return rateEntities;

@@ -21,7 +21,6 @@ public class ProductImageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
-    @JsonBackReference
     private ProductEntity productEntity;
 
     public ProductImageEntity() { }
@@ -48,6 +47,7 @@ public class ProductImageEntity {
         this.priorityLevel = priorityLevel;
     }
 
+    @JsonBackReference
     public ProductEntity getProductEntity() {
         logger.info("getProductEntity");
         return productEntity;

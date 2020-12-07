@@ -41,20 +41,16 @@ public class CustomerEntity {
     @Column(name = "date_joined")
     private Timestamp dateJoined;
 
-    @OneToMany(mappedBy="customerEntity")
-    @JsonBackReference
+    @OneToMany(mappedBy="customerEntity", fetch = FetchType.LAZY)
     private Set<ProductEntity> productEntities;
 
-    @OneToMany(mappedBy = "id.customerId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.customerId", fetch = FetchType.LAZY)
     private Set<FavoriteEntity> favoriteEntities;
 
-    @OneToMany(mappedBy = "id.customerId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.customerId", fetch = FetchType.LAZY)
     private Set<SearchEntity> searchEntities;
 
-    @OneToMany(mappedBy = "id.customerId")
-    @JsonIgnore
+    @OneToMany(mappedBy = "id.customerId", fetch = FetchType.LAZY)
     private Set<ViewEntity> viewEntities;
 
     public CustomerEntity() { }
@@ -136,6 +132,7 @@ public class CustomerEntity {
         this.dateJoined = dateJoined;
     }
 
+    @JsonBackReference
     public Set<ProductEntity> getProductEntities() {
         return productEntities;
     }
@@ -144,6 +141,7 @@ public class CustomerEntity {
         this.productEntities = productEntities;
     }
 
+    @JsonIgnore
     public Set<FavoriteEntity> getFavoriteEntities() {
         return favoriteEntities;
     }
@@ -152,6 +150,7 @@ public class CustomerEntity {
         this.favoriteEntities = favoriteEntities;
     }
 
+    @JsonIgnore
     public Set<SearchEntity> getSearchEntities() {
         return searchEntities;
     }
@@ -160,6 +159,7 @@ public class CustomerEntity {
         this.searchEntities = searchEntities;
     }
 
+    @JsonIgnore
     public Set<ViewEntity> getViewEntities() {
         return viewEntities;
     }

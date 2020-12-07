@@ -35,13 +35,12 @@ public class CategoryEntity {
     @Column(name = "image_name", length = 100, nullable = false, unique = true)
     private String imageName;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "products_categories",
             joinColumns = @JoinColumn(name = "category_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
-    @JsonBackReference
     private Set<ProductEntity> productEntities;
 
     public CategoryEntity() { }
@@ -90,6 +89,7 @@ public class CategoryEntity {
         this.imageName = imageName;
     }
 
+    @JsonBackReference
     public Set<ProductEntity> getProductEntities() {
         return productEntities;
     }

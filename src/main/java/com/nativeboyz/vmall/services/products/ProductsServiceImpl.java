@@ -1,5 +1,6 @@
 package com.nativeboyz.vmall.services.products;
 
+import com.nativeboyz.vmall.models.CustomerProductEntity;
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
@@ -69,9 +70,9 @@ public class ProductsServiceImpl implements ProductsService {
 
         ProductInfoDto dto = new ProductInfoDto(entity);
 
-        dto.setViewsQty(viewsRepository.countByProductId(productId));
-        dto.setFavoritesQty(favoritesRepository.countByProductId(productId));
-        dto.setAvgRate(ratesRepository.averageRateByProductId(productId));
+        dto.setViewsQty(viewsRepository.countProductViews(productId));
+        dto.setFavoritesQty(favoritesRepository.countProductFavorites(productId));
+        dto.setAvgRate(ratesRepository.findAverageRate(productId));
         dto.setFavorite((favoritesRepository.countByProductIdAndCustomerId(productId, customerId) > 0));
 
         return dto;
@@ -84,11 +85,29 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Page<ProductDto> findProducts(Pageable pageable, UUID customerId) {
+        Page<ProductDto> products = productsRepository
+                .findAll(pageable)
+                .map(ProductDto::new);
 
+        List<UUID> ids = products
+                .map(ProductDto::getId)
+                .stream()
+                .collect(Collectors.toList());
 
+        Map<UUID, Integer> viewMap = mapCount(viewsRepository.findAllByProductId(ids));
+        Map<UUID, Integer> favoriteMap = mapCount(favoritesRepository.findAllByProductId(ids));
+        Map<UUID, Float> avgRateMap = mapAvgRate(ratesRepository.findAllByProductId(ids));
 
+        products.forEach(product -> {
+            Integer viewsQty = viewMap.get(product.getId());
+            Integer favoritesQty = favoriteMap.get(product.getId());
 
-        return null;
+            product.setViewsQty(viewsQty != null ? viewsQty : 0);
+            product.setFavoritesQty(favoritesQty != null ? favoritesQty : 0);
+            product.setAvgRate(avgRateMap.get(product.getId()));
+        });
+
+        return products;
     }
 
     @Override
@@ -137,9 +156,33 @@ public class ProductsServiceImpl implements ProductsService {
         productsRepository.deleteById(id);
     }
 
-}
+    private <T extends CustomerProductEntity> Map<UUID, Integer> mapCount(List<T> entities) {
+        Map<UUID, Integer> countMap = new HashMap<>();
+        entities.forEach(e -> {
+            UUID id = e.getId().getProductId();
+            int preCount = (countMap.get(id) != null) ? countMap.get(id) : 0;
+            countMap.put(id, preCount + 1);
+        });
+        return countMap;
+    }
 
-/*        List<Category> categories = Arrays.stream(criteria.getCategories())
-                .map(categoriesRepository::findById) // TODO: Replace with single query
-                .map(Optional::orElseThrow)
-                .collect(Collectors.toList());*/
+    private Map<UUID, Float> mapAvgRate(List<RateEntity> entities) {
+        Map<UUID, Integer> countMap = mapCount(entities);
+        Map<UUID, Float> sumRateMap = new HashMap<>();
+
+        entities.forEach(e -> {
+            UUID id = e.getId().getProductId();
+            float preRate = (sumRateMap.get(id) != null) ? sumRateMap.get(id) : 0;
+            sumRateMap.put(id, preRate + e.getRate());
+        });
+
+        return new HashMap<>() {{
+            for (UUID key : sumRateMap.keySet()) {
+                Float rates = sumRateMap.get(key);
+                Integer views = (countMap.get(key) != null && countMap.get(key) > 0) ? countMap.get(key) : 1;
+                put(key, rates / views);
+            }
+        }};
+    }
+
+}

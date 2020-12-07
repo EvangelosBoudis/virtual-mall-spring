@@ -1,5 +1,6 @@
 package com.nativeboyz.vmall.models.entities;
 
+import com.nativeboyz.vmall.models.CustomerProductEntity;
 import com.nativeboyz.vmall.models.entities.identities.CustomerProductIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "rates")
-public class RateEntity {
+public class RateEntity implements CustomerProductEntity {
 
     private final static Logger logger = LoggerFactory.getLogger(RateEntity.class);
 

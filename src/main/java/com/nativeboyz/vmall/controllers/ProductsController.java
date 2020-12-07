@@ -1,6 +1,7 @@
 package com.nativeboyz.vmall.controllers;
 
 import com.nativeboyz.vmall.models.criteria.product.ProductTransformedCriteria;
+import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.models.criteria.PageCriteria;
@@ -34,9 +35,10 @@ public class ProductsController {
     }
 
     @GetMapping()
-    public Page<ProductEntity> getProducts(PageCriteria criteria) {
-        //logger.info("pre service");
-        return productsService.findProducts(criteria.asPageable());
+    public Page<ProductDto> getProducts(PageCriteria criteria) {
+        return productsService.findProducts(criteria.asPageable(), null);
+        // logger.info("pre service");
+        // return productsService.findProducts(criteria.asPageable());
     }
 
     @GetMapping("/{id}")

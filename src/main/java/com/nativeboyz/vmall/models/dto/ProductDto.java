@@ -1,8 +1,13 @@
 package com.nativeboyz.vmall.models.dto;
 
+import com.nativeboyz.vmall.models.entities.CategoryEntity;
+import com.nativeboyz.vmall.models.entities.ProductEntity;
+import com.nativeboyz.vmall.models.entities.ProductImageEntity;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ProductDto {
 
@@ -20,11 +25,23 @@ public class ProductDto {
     protected Float avgRate;
     protected Boolean favorite;
 
-    public ProductDto(UUID id, String name, Float price, Timestamp uploadTime) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.uploadTime = uploadTime;
+    public ProductDto(ProductEntity entity) {
+        id = entity.getId();
+        name = entity.getName();
+        price = entity.getPrice();
+        uploadTime = entity.getUploadTime();
+
+        ownerId = entity.getCustomerEntity().getId();
+
+        images = entity.getProductImageEntities()
+                .stream()
+                .map(ProductImageEntity::getImageName)
+                .collect(Collectors.toList()).toArray(String[]::new);
+
+        categories = entity.getCategoryEntities()
+                .stream()
+                .map(CategoryEntity::getId)
+                .collect(Collectors.toList()).toArray(UUID[]::new);
     }
 
     public UUID getId() {
