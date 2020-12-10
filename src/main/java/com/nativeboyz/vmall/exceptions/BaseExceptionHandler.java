@@ -34,20 +34,25 @@ public class BaseExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<MessageDto> handleDataIntegrityViolationException(DataIntegrityViolationException exc) {
+    public ResponseEntity<MessageDto> handleDataIntegrityViolationException(
+            DataIntegrityViolationException exc
+    ) {
         return handleException(exc, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    public ResponseEntity<MessageDto> handleStorageException(StorageException exc) {
+    public ResponseEntity<MessageDto> handleStorageException(
+            StorageException exc
+    ) {
         return handleException(exc, HttpStatus.FORBIDDEN);
     }
 
-/*    @ExceptionHandler
-    public ResponseEntity<MessageResponse> handleStorageFileNotFoundException(StorageFileNotFoundException exc) {
-        return handleException(exc, HttpStatus.NOT_FOUND);
-        //return ResponseEntity.notFound().build();
-    }*/
+    @ExceptionHandler
+    public ResponseEntity<MessageDto> handleFilePriorityException(
+            FilePriorityNotFound exc
+    ) {
+        return handleException(exc, HttpStatus.BAD_REQUEST);
+    }
 
     public <T extends Exception> ResponseEntity<MessageDto> handleException(T e, HttpStatus httpStatus) {
         MessageDto error = new MessageDto(
@@ -57,10 +62,17 @@ public class BaseExceptionHandler {
         return new ResponseEntity<>(error, httpStatus);
     }
 
-/*    @ExceptionHandler({ OptimisticLockingFailureException.class, DataIntegrityViolationException.class })
+    /*
+    @ExceptionHandler
+    public ResponseEntity<MessageResponse> handleStorageFileNotFoundException(StorageFileNotFoundException exc) {
+        return handleException(exc, HttpStatus.NOT_FOUND);
+        return ResponseEntity.notFound().build();
+    }
+    @ExceptionHandler({ OptimisticLockingFailureException.class, DataIntegrityViolationException.class })
     ResponseEntity<ExceptionMessage> handleConflict(Exception o_O) {
         return errorResponse(HttpStatus.CONFLICT, new HttpHeaders(), o_O);
         https://stackoverflow.com/questions/43678306/handling-dataintegrityviolationexceptions-in-spring-data-rest
-    }*/
+    }
+    */
 
 }

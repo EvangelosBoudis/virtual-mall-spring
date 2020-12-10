@@ -1,9 +1,12 @@
 package com.nativeboyz.vmall;
 
+import com.nativeboyz.vmall.repositories.HelperRepositoryImpl;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
+@EnableJpaRepositories(repositoryBaseClass = HelperRepositoryImpl.class)
 public class VMallApplication {
 
 	public static void main(String[] args) {

@@ -126,6 +126,7 @@ public class ProductEntity {
 
     public void setProductImageEntities(Set<ProductImageEntity> productImageEntities) {
         this.productImageEntities = productImageEntities;
+        productImageEntities.forEach(image -> image.setProductEntity(this));
     }
 
     @JsonIgnore

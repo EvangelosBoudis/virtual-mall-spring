@@ -1,7 +1,9 @@
 package com.nativeboyz.vmall.services.products;
 
+import com.nativeboyz.vmall.models.ActionType;
 import com.nativeboyz.vmall.models.CustomerProductEntity;
-import com.nativeboyz.vmall.models.criteria.product.ProductCriteria;
+import com.nativeboyz.vmall.models.criteria.ProductCriteria;
+import com.nativeboyz.vmall.models.ImageAction;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.*;
@@ -93,14 +95,13 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     @Transactional
-    public ProductEntity saveProduct(ProductCriteria criteria, String[] fileNames) {
+    public ProductEntity saveProduct(ProductCriteria criteria) {
 
         CustomerEntity customerEntity = customersRepository
                 .findById(criteria.getOwnerId())
                 .orElseThrow();
 
-        List<CategoryEntity> categoryEntities = categoriesRepository
-                .findAllById(Arrays.asList(criteria.getCategories()));
+        List<CategoryEntity> categoryEntities = categoriesRepository.findAllById(criteria.getCategories());
 
         ProductEntity productEntity = new ProductEntity(
                 criteria.getName(),
@@ -110,25 +111,63 @@ public class ProductsServiceImpl implements ProductsService {
         ProductInfoEntity productInfoEntity = new ProductInfoEntity(
                 criteria.getDescription(),
                 criteria.getDetails(),
-                criteria.getHashTags()
+                criteria.getHashTags().toArray(String[]::new)
         );
 
         productEntity.setCustomerEntity(customerEntity);
         productEntity.setProductInfoEntity(productInfoEntity);
         productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
 
-        Set<ProductImageEntity> imageEntities = new HashSet<>();
-        for (int i = 0; i < fileNames.length; i++) {
-            imageEntities.add(new ProductImageEntity(productEntity, fileNames[i], i));
-        }
+        Set<ProductImageEntity> imageEntities = criteria
+                .getImageActions()
+                .stream()
+                .map(ProductImageEntity::new)
+                .collect(Collectors.toSet());
+
         productEntity.setProductImageEntities(imageEntities);
 
         return productsRepository.save(productEntity);
     }
 
     @Override
-    public ProductEntity updateProduct(UUID productId, ProductCriteria criteria, String[] fileNames) {
-        return null;
+    @Transactional
+    public ProductInfoDto updateProduct(UUID productId, ProductCriteria criteria) {
+
+        ProductEntity productEntity = productsRepository
+                .findById(productId)
+                .orElseThrow();
+
+        productEntity.setName(criteria.getName());
+        productEntity.setPrice(criteria.getPrice());
+
+        ProductInfoEntity infoEntity = productEntity.getProductInfoEntity();
+
+        infoEntity.setDetails(criteria.getDetails());
+        infoEntity.setDescription(criteria.getDescription());
+        infoEntity.setHashTags(criteria.getHashTags().toArray(String[]::new));
+
+        List<CategoryEntity> categoryEntities = categoriesRepository.findAllById(criteria.getCategories());
+        productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
+
+        // replace image entities with new one
+
+        // #1 delete existing image entities
+        Set<ProductImageEntity> imageEntities = productEntity.getProductImageEntities();
+        productImagesRepository.deleteInBatch(imageEntities);
+
+        // #2 apply new image entities into product entity
+        Set<ProductImageEntity> newImageEntities = ImageAction
+                .filter(criteria.getImageActions(), new ActionType[] { ActionType.SAVE, ActionType.UPDATE })
+                .stream()
+                .map(ProductImageEntity::new)
+                .collect(Collectors.toSet());
+
+        productEntity.setProductImageEntities(newImageEntities);
+
+        // #3 save product entity
+        ProductInfoDto dto = new ProductInfoDto(productsRepository.save(productEntity));
+        applyAdditionalInfo(dto, dto.getOwnerId());
+        return dto;
     }
 
     @Override
@@ -137,7 +176,7 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<String> findProductImages(UUID productId) {
+    public List<String> findProductImageNames(UUID productId) {
         return productImagesRepository
                 .findByProductId(productId)
                 .stream()

@@ -1,9 +1,11 @@
-package com.nativeboyz.vmall.models.criteria.product;
+package com.nativeboyz.vmall.models.criteria;
+
+import com.nativeboyz.vmall.models.ImageAction;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ProductCriteria {
@@ -20,7 +22,10 @@ public class ProductCriteria {
 
     @NotNull
     @NotEmpty
-    protected UUID[] categories;
+    protected List<UUID> categories;
+
+    @NotNull
+    protected List<ImageAction> imageActions;
 
     @NotNull
     @NotBlank
@@ -28,28 +33,26 @@ public class ProductCriteria {
 
     protected String details;
 
-    protected String[] hashTags;
-
-    protected String[] previousFileNames;
+    protected List<String> hashTags;
 
     public ProductCriteria(
             @NotNull UUID ownerId,
             @NotNull @NotBlank String name,
             @NotNull Float price,
-            @NotNull @NotEmpty UUID[] categories,
+            @NotNull @NotEmpty List<UUID> categories,
+            @NotNull List<ImageAction> imageActions,
             @NotNull @NotBlank String description,
             String details,
-            String[] hashTags,
-            String[] previousFileNames
+            List<String> hashTags
     ) {
         this.ownerId = ownerId;
         this.name = name;
         this.price = price;
         this.categories = categories;
+        this.imageActions = imageActions;
         this.description = description;
         this.details = details;
         this.hashTags = hashTags;
-        this.previousFileNames = previousFileNames;
     }
 
     public UUID getOwnerId() {
@@ -76,12 +79,20 @@ public class ProductCriteria {
         this.price = price;
     }
 
-    public UUID[] getCategories() {
+    public List<UUID> getCategories() {
         return categories;
     }
 
-    public void setCategories(UUID[] categories) {
+    public void setCategories(List<UUID> categories) {
         this.categories = categories;
+    }
+
+    public List<ImageAction> getImageActions() {
+        return imageActions;
+    }
+
+    public void setImageActions(List<ImageAction> imageActions) {
+        this.imageActions = imageActions;
     }
 
     public String getDescription() {
@@ -100,20 +111,12 @@ public class ProductCriteria {
         this.details = details;
     }
 
-    public String[] getHashTags() {
+    public List<String> getHashTags() {
         return hashTags;
     }
 
-    public void setHashTags(String[] hashTags) {
+    public void setHashTags(List<String> hashTags) {
         this.hashTags = hashTags;
-    }
-
-    public String[] getPreviousFileNames() {
-        return previousFileNames;
-    }
-
-    public void setPreviousFileNames(String[] previousFileNames) {
-        this.previousFileNames = previousFileNames;
     }
 
     @Override
@@ -122,11 +125,11 @@ public class ProductCriteria {
                 "ownerId=" + ownerId +
                 ", name='" + name + '\'' +
                 ", price=" + price +
-                ", categories=" + Arrays.toString(categories) +
+                ", categories=" + categories +
+                ", imageActions=" + imageActions +
                 ", description='" + description + '\'' +
                 ", details='" + details + '\'' +
-                ", hashTags=" + Arrays.toString(hashTags) +
-                ", previousFileNames=" + Arrays.toString(previousFileNames) +
+                ", hashTags=" + hashTags +
                 '}';
     }
 }

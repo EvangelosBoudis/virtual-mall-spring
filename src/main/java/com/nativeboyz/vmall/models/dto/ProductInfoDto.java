@@ -3,18 +3,19 @@ package com.nativeboyz.vmall.models.dto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ProductInfoDto extends ProductDto {
 
     private String description;
     private String details;
-    private String[] hashTags;
+    private List<String> hashTags;
 
     public ProductInfoDto(ProductEntity entity) {
         super(entity);
         description = entity.getProductInfoEntity().getDescription();
         details = entity.getProductInfoEntity().getDetails();
-        hashTags = entity.getProductInfoEntity().getHashTags();
+        hashTags = Arrays.asList(entity.getProductInfoEntity().getHashTags());
     }
 
     public String getDescription() {
@@ -33,11 +34,11 @@ public class ProductInfoDto extends ProductDto {
         this.details = details;
     }
 
-    public String[] getHashTags() {
+    public List<String> getHashTags() {
         return hashTags;
     }
 
-    public void setHashTags(String[] hashTags) {
+    public void setHashTags(List<String> hashTags) {
         this.hashTags = hashTags;
     }
 
@@ -46,14 +47,14 @@ public class ProductInfoDto extends ProductDto {
         return "ProductInfoDto{" +
                 "description='" + description + '\'' +
                 ", details='" + details + '\'' +
-                ", hashTags=" + Arrays.toString(hashTags) +
+                ", hashTags=" + hashTags +
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", uploadTime=" + uploadTime +
                 ", ownerId=" + ownerId +
-                ", images=" + Arrays.toString(images) +
-                ", categories=" + Arrays.toString(categories) +
+                ", categories=" + categories +
+                ", images=" + images +
                 ", viewsQty=" + viewsQty +
                 ", favoritesQty=" + favoritesQty +
                 ", avgRate=" + avgRate +

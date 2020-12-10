@@ -1,6 +1,6 @@
 package com.nativeboyz.vmall.services.products;
 
-import com.nativeboyz.vmall.models.criteria.product.ProductCriteria;
+import com.nativeboyz.vmall.models.criteria.ProductCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
@@ -18,12 +18,12 @@ public interface ProductsService {
 
     Page<ProductDto> findProducts(Pageable pageable, UUID customerId);
 
-    ProductEntity saveProduct(ProductCriteria criteria, String[] fileNames);
+    ProductEntity saveProduct(ProductCriteria criteria);
 
-    ProductEntity updateProduct(UUID productId, ProductCriteria criteria, String[] fileNames);
+    ProductInfoDto updateProduct(UUID productId, ProductCriteria criteria);
 
     void deleteProduct(UUID id);
 
-    List<String> findProductImages(UUID productId);
+    List<String> findProductImageNames(UUID productId);
 
 }

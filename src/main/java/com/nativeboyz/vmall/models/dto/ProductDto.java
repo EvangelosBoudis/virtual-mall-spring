@@ -2,10 +2,9 @@ package com.nativeboyz.vmall.models.dto;
 
 import com.nativeboyz.vmall.models.entities.CategoryEntity;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
-import com.nativeboyz.vmall.models.entities.ProductImageEntity;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -17,8 +16,8 @@ public class ProductDto {
     protected Timestamp uploadTime;
 
     protected UUID ownerId;
-    protected String[] images;
-    protected UUID[] categories;
+    protected List<UUID> categories;
+    protected List<ProductImageDto> images;
 
     protected Integer viewsQty;
     protected Integer favoritesQty;
@@ -35,13 +34,13 @@ public class ProductDto {
 
         images = entity.getProductImageEntities()
                 .stream()
-                .map(ProductImageEntity::getImageName)
-                .collect(Collectors.toList()).toArray(String[]::new);
+                .map(ProductImageDto::new)
+                .collect(Collectors.toList());
 
         categories = entity.getCategoryEntities()
                 .stream()
                 .map(CategoryEntity::getId)
-                .collect(Collectors.toList()).toArray(UUID[]::new);
+                .collect(Collectors.toList());
     }
 
     public UUID getId() {
@@ -84,20 +83,20 @@ public class ProductDto {
         this.ownerId = ownerId;
     }
 
-    public String[] getImages() {
-        return images;
-    }
-
-    public void setImages(String[] images) {
-        this.images = images;
-    }
-
-    public UUID[] getCategories() {
+    public List<UUID> getCategories() {
         return categories;
     }
 
-    public void setCategories(UUID[] categories) {
+    public void setCategories(List<UUID> categories) {
         this.categories = categories;
+    }
+
+    public List<ProductImageDto> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ProductImageDto> images) {
+        this.images = images;
     }
 
     public Integer getViewsQty() {
@@ -140,8 +139,8 @@ public class ProductDto {
                 ", price=" + price +
                 ", uploadTime=" + uploadTime +
                 ", ownerId=" + ownerId +
-                ", images=" + Arrays.toString(images) +
-                ", categories=" + Arrays.toString(categories) +
+                ", categories=" + categories +
+                ", images=" + images +
                 ", viewsQty=" + viewsQty +
                 ", favoritesQty=" + favoritesQty +
                 ", avgRate=" + avgRate +
