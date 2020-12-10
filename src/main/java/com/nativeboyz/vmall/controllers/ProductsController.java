@@ -4,13 +4,10 @@ import com.nativeboyz.vmall.exceptions.FilePriorityNotFound;
 import com.nativeboyz.vmall.models.ActionType;
 import com.nativeboyz.vmall.models.ImageAction;
 import com.nativeboyz.vmall.models.criteria.ProductCriteria;
+import com.nativeboyz.vmall.models.criteria.QueryCriteria;
 import com.nativeboyz.vmall.models.dto.*;
-import com.nativeboyz.vmall.models.entities.ProductEntity;
-import com.nativeboyz.vmall.models.criteria.PageCriteria;
 import com.nativeboyz.vmall.services.products.ProductsService;
 import com.nativeboyz.vmall.services.storage.StorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +24,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/products")
 public class ProductsController {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final ProductsService productsService;
     private final StorageService storageService;
 
@@ -39,9 +34,9 @@ public class ProductsController {
     }
 
     @GetMapping()
-    public Page<ProductDto> getProducts(PageCriteria criteria) {
-        // TODO: Asc Desc + customerId
-        return productsService.findProducts(criteria.asPageable(), null);
+    public Page<ProductDto> getProducts(QueryCriteria criteria) {
+        // TODO: JWT customerId
+        return productsService.findProducts(criteria, null);
     }
 
     @GetMapping("/{id}")
@@ -63,7 +58,7 @@ public class ProductsController {
     }
 
     @PostMapping()
-    public ProductEntity createProduct(
+    public ProductInfoDto createProduct(
             @RequestPart("files") List<MultipartFile> files,
             @RequestPart("product") @Valid ProductCriteria criteria
     ) {

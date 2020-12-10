@@ -4,6 +4,7 @@ import com.nativeboyz.vmall.models.ActionType;
 import com.nativeboyz.vmall.models.CustomerProductEntity;
 import com.nativeboyz.vmall.models.criteria.ProductCriteria;
 import com.nativeboyz.vmall.models.ImageAction;
+import com.nativeboyz.vmall.models.criteria.QueryCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductInfoDto;
 import com.nativeboyz.vmall.models.entities.*;
@@ -14,6 +15,8 @@ import com.nativeboyz.vmall.repositories.productImages.ProductImagesRepository;
 import com.nativeboyz.vmall.repositories.products.ProductsRepository;
 import com.nativeboyz.vmall.repositories.rates.RatesRepository;
 import com.nativeboyz.vmall.repositories.views.ViewsRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductsServiceImpl implements ProductsService {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ProductsRepository productsRepository;
     private final CategoriesRepository categoriesRepository;
@@ -67,10 +72,26 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public Page<ProductDto> findProducts(Pageable pageable, UUID customerId) {
-        Page<ProductDto> products = productsRepository
-                .findAll(pageable)
-                .map(ProductDto::new);
+    public Page<ProductDto> findProducts(QueryCriteria criteria, UUID customerId) {
+
+        // Criteria
+        Pageable pageable = criteria.getPageable();
+        UUID categoryId = criteria.getCategoryId();
+        String textMatch = criteria.getTextMatch();
+
+        logger.info("page: " + pageable.toString() + " category: " + categoryId + " text: " + textMatch);
+
+        Page<ProductEntity> entities;
+
+        if (categoryId != null) {
+            entities = productsRepository.findByCategoryId(categoryId, pageable);
+        } else if (textMatch != null) {
+            entities = productsRepository.findByTextMatch(textMatch.toLowerCase(), pageable);
+        } else {
+            entities = productsRepository.findAll(pageable);
+        }
+
+        Page<ProductDto> products = entities.map(ProductDto::new);
 
         List<UUID> ids = products
                 .map(ProductDto::getId)
@@ -95,7 +116,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     @Transactional
-    public ProductEntity saveProduct(ProductCriteria criteria) {
+    public ProductInfoDto saveProduct(ProductCriteria criteria) {
 
         CustomerEntity customerEntity = customersRepository
                 .findById(criteria.getOwnerId())
@@ -126,7 +147,9 @@ public class ProductsServiceImpl implements ProductsService {
 
         productEntity.setProductImageEntities(imageEntities);
 
-        return productsRepository.save(productEntity);
+        ProductInfoDto infoDto = new ProductInfoDto(productsRepository.save(productEntity));
+        applyAdditionalInfo(infoDto, infoDto.getOwnerId());
+        return infoDto;
     }
 
     @Override
@@ -165,9 +188,9 @@ public class ProductsServiceImpl implements ProductsService {
         productEntity.setProductImageEntities(newImageEntities);
 
         // #3 save product entity
-        ProductInfoDto dto = new ProductInfoDto(productsRepository.save(productEntity));
-        applyAdditionalInfo(dto, dto.getOwnerId());
-        return dto;
+        ProductInfoDto infoDto = new ProductInfoDto(productsRepository.save(productEntity));
+        applyAdditionalInfo(infoDto, infoDto.getOwnerId());
+        return infoDto;
     }
 
     @Override
