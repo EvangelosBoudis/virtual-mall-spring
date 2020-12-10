@@ -1,13 +1,9 @@
 package com.nativeboyz.vmall.models.criteria;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class CustomerCriteria {
-
-    private MultipartFile file;
 
     @NotNull
     @NotBlank
@@ -25,20 +21,16 @@ public class CustomerCriteria {
 
     public CustomerCriteria() { }
 
-    public CustomerCriteria(MultipartFile file, String firstname, String lastname, String email, String phoneNumber) {
-        this.file = file;
+    public CustomerCriteria(
+            @NotNull @NotBlank String firstname,
+            @NotNull @NotBlank String lastname,
+            @NotNull @NotBlank String email,
+            String phoneNumber
+    ) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.phoneNumber = phoneNumber;
-    }
-
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
     }
 
     public String getFirstname() {
@@ -76,8 +68,7 @@ public class CustomerCriteria {
     @Override
     public String toString() {
         return "CustomerCriteria{" +
-                "file=" + file +
-                ", firstname='" + firstname + '\'' +
+                "firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +

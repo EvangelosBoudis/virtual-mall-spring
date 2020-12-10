@@ -40,6 +40,7 @@ public class ProductsController {
 
     @GetMapping()
     public Page<ProductDto> getProducts(PageCriteria criteria) {
+        // TODO: Asc Desc + customerId
         return productsService.findProducts(criteria.asPageable(), null);
     }
 
@@ -63,8 +64,8 @@ public class ProductsController {
 
     @PostMapping()
     public ProductEntity createProduct(
-            @RequestPart("filesPayload") List<MultipartFile> files,
-            @RequestPart("jsonPayload") @Valid ProductCriteria criteria
+            @RequestPart("files") List<MultipartFile> files,
+            @RequestPart("product") @Valid ProductCriteria criteria
     ) {
 
         List<ImageAction> transformed = saveFilesProcess(
@@ -78,8 +79,8 @@ public class ProductsController {
     @PutMapping("/{id}")
     public ProductInfoDto updateProduct(
             @PathVariable UUID id,
-            @RequestPart("filesPayload") List<MultipartFile> files,
-            @RequestPart("jsonPayload") @Valid ProductCriteria criteria
+            @RequestPart("files") List<MultipartFile> files,
+            @RequestPart("product") @Valid ProductCriteria criteria
     ) {
 
         List<ImageAction> transformed = filesProcess(

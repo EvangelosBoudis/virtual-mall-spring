@@ -1,5 +1,6 @@
 package com.nativeboyz.vmall.controllers;
 
+import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.entities.CustomerEntity;
 import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.models.criteria.CustomerCriteria;
@@ -11,8 +12,10 @@ import com.nativeboyz.vmall.tools.UrlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @RestController()
@@ -30,12 +33,12 @@ public class CustomersController {
 
     @GetMapping()
     public Page<CustomerEntity> getCustomers(PageCriteria criteria) {
-        return customersService.findCustomers(criteria.asPageable())
-                .map(customer -> {
-                    String url = UrlGenerator.fileNameToUrl(customer.getImageName());
-                    customer.setImageName(url);
-                    return customer;
-                });
+        Page<CustomerEntity> customers = customersService.findCustomers(criteria.asPageable());
+        customers.forEach(customer -> {
+            String url = UrlGenerator.fileNameToUrl(customer.getImageName());
+            customer.setImageName(url);
+        });
+        return customers;
     }
 
     @GetMapping("/{id}")
@@ -45,18 +48,45 @@ public class CustomersController {
         return customer;
     }
 
-    @DeleteMapping("/{id}")
-    public TransactionDto deleteCustomer(@PathVariable UUID id) {
-        CustomerEntity customer = customersService.findCustomer(id);
-        String imageName = customer.getImageName();
-        if (imageName != null) storageService.deleteIfExists(imageName);
-        customersService.deleteCustomer(id);
-        return new TransactionDto("Customer: " + id.toString() + " deleted successfully");
+    @GetMapping("/{id}/products")
+    public Page<ProductEntity> getCustomerProducts(
+            @PathVariable UUID id,
+            PageCriteria criteria
+    ) {
+        return customersService.findCustomerProducts(id, criteria.asPageable());
+    }
+
+    @GetMapping("/{id}/favorite-products")
+    public Page<ProductDto> getCustomerFavoriteProducts(
+            @PathVariable UUID id,
+            PageCriteria criteria
+    ) {
+        // TODO: implement
+        return null;
+    }
+
+    @GetMapping("/{id}/viewed-products")
+    public Page<ProductDto> getCustomerViewedProducts(
+            PageCriteria criteria
+    ) {
+        // TODO: implement
+        return null;
+    }
+
+    @GetMapping("/{id}/search-history")
+    public Page<String> getCustomerSearchHistory(
+            PageCriteria criteria
+    ) {
+        // TODO: implement
+        return null;
     }
 
     @PostMapping()
-    public CustomerEntity createCustomer(@Valid CustomerCriteria criteria) {
-        String filename = (criteria.getFile() != null) ? storageService.save(criteria.getFile()) : null;
+    public CustomerEntity createCustomer(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("customer") @Valid CustomerCriteria criteria
+    ) {
+        String filename = (file != null) ? storageService.save(file) : null;
         CustomerEntity customer = customersService.saveCustomer(
                 new CustomerEntity(
                         criteria.getFirstname(),
@@ -74,10 +104,11 @@ public class CustomersController {
     @PutMapping("/{id}")
     public CustomerEntity updateCustomer(
             @PathVariable UUID id,
-            @Valid CustomerCriteria criteria
+            @RequestPart("file") @NotNull MultipartFile file,
+            @RequestPart("customer") @Valid CustomerCriteria criteria
     ) {
         CustomerEntity customer = customersService.findCustomer(id);
-        String updatedImageName = storageService.replaceIfExists(customer.getImageName(), criteria.getFile());
+        String updatedImageName = storageService.replaceIfExists(customer.getImageName(), file);
         customer.update(
                 criteria.getFirstname(),
                 criteria.getLastname(),
@@ -91,20 +122,15 @@ public class CustomersController {
         return updatedCustomer;
     }
 
-    @GetMapping("/{customerId}/products")
-    public Page<ProductEntity> getCustomerProducts(
-            @PathVariable UUID customerId,
-            PageCriteria criteria
-    ) {
-        return customersService.findCustomerProducts(customerId, criteria.asPageable());
+    @DeleteMapping("/{id}")
+    public TransactionDto deleteCustomer(@PathVariable UUID id) {
+        CustomerEntity customer = customersService.findCustomer(id);
+        String imageName = customer.getImageName();
+        if (imageName != null) storageService.deleteIfExists(imageName);
+        customersService.deleteCustomer(id);
+        return new TransactionDto("Customer: " + id.toString() + " deleted successfully");
     }
 
-/*    @GetMapping("/{customerId}/favorites")
-    public Page<Product> getCustomerFavoriteProducts(
-            @PathVariable UUID customerId
-    ) {
-
-    }*/
-
 }
+
 // @RequestParam(value = "file", required = false) MultipartFile file,

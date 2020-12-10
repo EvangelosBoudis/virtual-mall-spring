@@ -1,14 +1,9 @@
 package com.nativeboyz.vmall.models.criteria;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class CategoryCriteria {
-
-    @NotNull
-    private MultipartFile file;
 
     @NotNull
     @NotBlank
@@ -18,18 +13,9 @@ public class CategoryCriteria {
 
     public CategoryCriteria() { }
 
-    public CategoryCriteria(@NotNull MultipartFile file, @NotNull @NotBlank String name, String description) {
-        this.file = file;
+    public CategoryCriteria(@NotNull @NotBlank String name, String description) {
         this.name = name;
         this.description = description;
-    }
-
-    public MultipartFile getFile() {
-        return file;
-    }
-
-    public void setFile(MultipartFile file) {
-        this.file = file;
     }
 
     public String getName() {
@@ -51,8 +37,7 @@ public class CategoryCriteria {
     @Override
     public String toString() {
         return "CategoryCriteria{" +
-                "file=" + file +
-                ", name='" + name + '\'' +
+                "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 '}';
     }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -52,21 +53,16 @@ public class CategoriesController {
         return category;
     }
 
-    @DeleteMapping("/{id}")
-    public TransactionDto deleteCategory(@PathVariable UUID id) {
-        CategoryEntity category = categoriesService.findCategory(id);
-        storageService.deleteIfExists(category.getImageName());
-        categoriesService.deleteCategory(id);
-        return new TransactionDto("Category: " + id.toString() + " deleted successfully");
-    }
-
     @PostMapping()
-    public CategoryEntity createCategory(@Valid CategoryCriteria criteria) {
+    public CategoryEntity createCategory(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("category") @Valid CategoryCriteria criteria
+    ) {
         CategoryEntity category = categoriesService.saveCategory(
                 new CategoryEntity(
                         criteria.getName(),
                         criteria.getDescription(),
-                        storageService.save(criteria.getFile())
+                        storageService.save(file)
                 )
         );
         String url = UrlGenerator.fileNameToUrl(category.getImageName());
@@ -77,10 +73,11 @@ public class CategoriesController {
     @PutMapping("/{id}")
     public CategoryEntity updateCategory(
             @PathVariable UUID id,
-            @Valid CategoryCriteria criteria
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("category") @Valid CategoryCriteria criteria
     ) {
         CategoryEntity category = categoriesService.findCategory(id);
-        String updatedImageName = storageService.replaceIfExists(category.getImageName(), criteria.getFile());
+        String updatedImageName = storageService.replaceIfExists(category.getImageName(), file);
         category.update(
                 criteria.getName(),
                 criteria.getDescription(),
@@ -90,6 +87,14 @@ public class CategoriesController {
         String url = UrlGenerator.fileNameToUrl(updatedCategory.getImageName());
         updatedCategory.setImageName(url);
         return updatedCategory;
+    }
+
+    @DeleteMapping("/{id}")
+    public TransactionDto deleteCategory(@PathVariable UUID id) {
+        CategoryEntity category = categoriesService.findCategory(id);
+        storageService.deleteIfExists(category.getImageName());
+        categoriesService.deleteCategory(id);
+        return new TransactionDto("Category: " + id.toString() + " deleted successfully");
     }
 
 }
