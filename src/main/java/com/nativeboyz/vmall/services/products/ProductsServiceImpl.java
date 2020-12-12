@@ -1,12 +1,12 @@
 package com.nativeboyz.vmall.services.products;
 
-import com.nativeboyz.vmall.models.ActionType;
 import com.nativeboyz.vmall.models.CustomerProductEntity;
 import com.nativeboyz.vmall.models.criteria.ProductCriteria;
-import com.nativeboyz.vmall.models.ImageAction;
 import com.nativeboyz.vmall.models.criteria.QueryCriteria;
+import com.nativeboyz.vmall.models.dto.OrderedImage;
+import com.nativeboyz.vmall.models.dto.ProductAdditionalInfo;
 import com.nativeboyz.vmall.models.dto.ProductDto;
-import com.nativeboyz.vmall.models.dto.ProductInfoDto;
+import com.nativeboyz.vmall.models.dto.ProductDetailsDto;
 import com.nativeboyz.vmall.models.entities.*;
 import com.nativeboyz.vmall.repositories.categories.CategoriesRepository;
 import com.nativeboyz.vmall.repositories.customers.CustomersRepository;
@@ -66,9 +66,9 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public ProductInfoDto findProductInfo(UUID productId, UUID customerId) {
+    public ProductDetailsDto findProductInfo(UUID productId, UUID customerId) {
         ProductEntity entity = productsRepository.findById(productId).orElseThrow();
-        return applyAdditionalInfo(new ProductInfoDto(entity), customerId);
+        return applyAdditionalInfo(new ProductDetailsDto(entity), customerId);
     }
 
     @Override
@@ -105,10 +105,13 @@ public class ProductsServiceImpl implements ProductsService {
         products.forEach(product -> {
             Integer viewsQty = viewMap.get(product.getId());
             Integer favoritesQty = favoriteMap.get(product.getId());
-
-            product.setViewsQty(viewsQty != null ? viewsQty : 0);
-            product.setFavoritesQty(favoritesQty != null ? favoritesQty : 0);
-            product.setAvgRate(rateMap.get(product.getId()));
+            ProductAdditionalInfo additionalInfo = new ProductAdditionalInfo(
+                    viewsQty != null ? viewsQty : 0,
+                    favoritesQty != null ? favoritesQty : 0,
+                    rateMap.get(product.getId()),
+                    null
+            );
+            product.setAdditionalInfo(additionalInfo);
         });
 
         return products;
@@ -116,7 +119,7 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     @Transactional
-    public ProductInfoDto saveProduct(ProductCriteria criteria) {
+    public ProductDetailsDto saveProduct(ProductCriteria criteria) {
 
         CustomerEntity customerEntity = customersRepository
                 .findById(criteria.getOwnerId())
@@ -125,49 +128,49 @@ public class ProductsServiceImpl implements ProductsService {
         List<CategoryEntity> categoryEntities = categoriesRepository.findAllById(criteria.getCategories());
 
         ProductEntity productEntity = new ProductEntity(
-                criteria.getName(),
+                criteria.getTitle(),
                 criteria.getPrice()
         );
 
-        ProductInfoEntity productInfoEntity = new ProductInfoEntity(
+        ProductDetailsEntity detailsEntity = new ProductDetailsEntity(
                 criteria.getDescription(),
-                criteria.getDetails(),
-                criteria.getHashTags().toArray(String[]::new)
+                criteria.getCharacteristics(),
+                criteria.getKeywords()
         );
 
+        productEntity.setDetailsEntity(detailsEntity);
         productEntity.setCustomerEntity(customerEntity);
-        productEntity.setProductInfoEntity(productInfoEntity);
         productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
 
         Set<ProductImageEntity> imageEntities = criteria
-                .getImageActions()
+                .getOrderedImages()
                 .stream()
                 .map(ProductImageEntity::new)
                 .collect(Collectors.toSet());
 
-        productEntity.setProductImageEntities(imageEntities);
+        productEntity.setImageEntities(imageEntities);
 
-        ProductInfoDto infoDto = new ProductInfoDto(productsRepository.save(productEntity));
+        ProductDetailsDto infoDto = new ProductDetailsDto(productsRepository.save(productEntity));
         applyAdditionalInfo(infoDto, infoDto.getOwnerId());
         return infoDto;
     }
 
     @Override
     @Transactional
-    public ProductInfoDto updateProduct(UUID productId, ProductCriteria criteria) {
+    public ProductDetailsDto updateProduct(UUID id, ProductCriteria criteria) {
 
         ProductEntity productEntity = productsRepository
-                .findById(productId)
+                .findById(id)
                 .orElseThrow();
 
-        productEntity.setName(criteria.getName());
+        productEntity.setTitle(criteria.getTitle());
         productEntity.setPrice(criteria.getPrice());
 
-        ProductInfoEntity infoEntity = productEntity.getProductInfoEntity();
+        ProductDetailsEntity detailsEntity = productEntity.getDetailsEntity();
 
-        infoEntity.setDetails(criteria.getDetails());
-        infoEntity.setDescription(criteria.getDescription());
-        infoEntity.setHashTags(criteria.getHashTags().toArray(String[]::new));
+        detailsEntity.setCharacteristics(criteria.getCharacteristics());
+        detailsEntity.setDescription(criteria.getDescription());
+        detailsEntity.setKeywords(criteria.getKeywords());
 
         List<CategoryEntity> categoryEntities = categoriesRepository.findAllById(criteria.getCategories());
         productEntity.setCategoryEntities(new HashSet<>(categoryEntities));
@@ -175,22 +178,33 @@ public class ProductsServiceImpl implements ProductsService {
         // replace image entities with new one
 
         // #1 delete existing image entities
-        Set<ProductImageEntity> imageEntities = productEntity.getProductImageEntities();
-        productImagesRepository.deleteInBatch(imageEntities);
+        List<String> imageNames = criteria
+                .getOrderedImages()
+                .stream()
+                .map(OrderedImage::getName)
+                .collect(Collectors.toList());
+
+        List<ProductImageEntity> oldProductImageEntities = productEntity
+                .getImageEntities()
+                .stream()
+                .filter(x -> !imageNames.contains(x.getImageName()))
+                .collect(Collectors.toList());
+
+        productImagesRepository.deleteInBatch(oldProductImageEntities);
 
         // #2 apply new image entities into product entity
-        Set<ProductImageEntity> newImageEntities = ImageAction
-                .filter(criteria.getImageActions(), new ActionType[] { ActionType.SAVE, ActionType.UPDATE })
+        Set<ProductImageEntity> imageEntities = criteria
+                .getOrderedImages()
                 .stream()
                 .map(ProductImageEntity::new)
                 .collect(Collectors.toSet());
 
-        productEntity.setProductImageEntities(newImageEntities);
+        productEntity.setImageEntities(imageEntities);
 
         // #3 save product entity
-        ProductInfoDto infoDto = new ProductInfoDto(productsRepository.save(productEntity));
-        applyAdditionalInfo(infoDto, infoDto.getOwnerId());
-        return infoDto;
+        ProductDetailsDto detailsDto = new ProductDetailsDto(productsRepository.save(productEntity));
+        applyAdditionalInfo(detailsDto, detailsDto.getOwnerId());
+        return detailsDto;
     }
 
     @Override
@@ -199,21 +213,24 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public List<String> findProductImageNames(UUID productId) {
+    public List<String> findProductImageNames(UUID id) {
         return productImagesRepository
-                .findByProductId(productId)
+                .findByProductId(id)
                 .stream()
                 .map(ProductImageEntity::getImageName)
                 .collect(Collectors.toList());
     }
 
     private <T extends ProductDto> T applyAdditionalInfo(T dto, UUID customerId) {
-        UUID productId = dto.getId();
-        dto.setViewsQty(viewsRepository.countByProductId(productId));
-        dto.setFavoritesQty(favoritesRepository.countByProductId(productId));
-        dto.setAvgRate(ratesRepository.avgRateByProductId(productId));
-        dto.setFavorite((favoritesRepository.isFavoriteByCustomer(productId, customerId) > 0));
-        return dto;
+        UUID id = dto.getId();
+        ProductAdditionalInfo additionalInfo = new ProductAdditionalInfo(
+                viewsRepository.countByProductId(id),
+                favoritesRepository.countByProductId(id),
+                ratesRepository.avgRateByProductId(id),
+                (favoritesRepository.isFavoriteByCustomer(id, customerId) > 0)
+        );
+        dto.setAdditionalInfo(additionalInfo);
+        return  dto;
     }
 
     private <T extends CustomerProductEntity> Map<UUID, Integer> mapCount(List<T> entities) {

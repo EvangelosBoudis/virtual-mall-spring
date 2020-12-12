@@ -17,34 +17,27 @@ public class FavoriteEntity implements CustomerProductEntity {
     @EmbeddedId
     private CustomerProductIdentity id;
 
-    @Column(name = "action_timestamp")
-    private Timestamp actionTimestamp;
-
     @Column(name = "status", nullable = false)
     private Boolean status;
 
+    @Column(name = "action_timestamp")
+    private Timestamp actionTimestamp;
+
     public FavoriteEntity() { }
 
-    public FavoriteEntity(CustomerProductIdentity id, Timestamp actionTimestamp, Boolean status) {
+    public FavoriteEntity(CustomerProductIdentity id, Boolean status, Timestamp actionTimestamp) {
         this.id = id;
-        this.actionTimestamp = actionTimestamp;
         this.status = status;
+        this.actionTimestamp = actionTimestamp;
     }
 
+    @Override
     public CustomerProductIdentity getId() {
         return id;
     }
 
     public void setId(CustomerProductIdentity id) {
         this.id = id;
-    }
-
-    public Timestamp getActionTimestamp() {
-        return actionTimestamp;
-    }
-
-    public void setActionTimestamp(Timestamp actionTimestamp) {
-        this.actionTimestamp = actionTimestamp;
     }
 
     public Boolean getStatus() {
@@ -55,12 +48,20 @@ public class FavoriteEntity implements CustomerProductEntity {
         this.status = status;
     }
 
+    public Timestamp getActionTimestamp() {
+        return actionTimestamp;
+    }
+
+    public void setActionTimestamp(Timestamp actionTimestamp) {
+        this.actionTimestamp = actionTimestamp;
+    }
+
     @Override
     public String toString() {
         return "FavoriteEntity{" +
                 "id=" + id +
-                ", actionTimestamp=" + actionTimestamp +
                 ", status=" + status +
+                ", actionTimestamp=" + actionTimestamp +
                 '}';
     }
 }

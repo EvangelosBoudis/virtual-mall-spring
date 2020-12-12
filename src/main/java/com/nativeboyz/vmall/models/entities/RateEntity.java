@@ -17,34 +17,31 @@ public class RateEntity implements CustomerProductEntity {
     @EmbeddedId
     private CustomerProductIdentity id;
 
-    @Column(name = "rate_timestamp")
-    private Timestamp rateTimestamp;
-
     @Column(name = "rate", nullable = false)
     private Integer rate;
 
+    @Column(name = "comment")
+    private String comment;
+
+    @Column(name = "action_timestamp")
+    private Timestamp actionTimestamp;
+
     public RateEntity() { }
 
-    public RateEntity(CustomerProductIdentity id, Timestamp rateTimestamp, Integer rate) {
+    public RateEntity(CustomerProductIdentity id, Integer rate, String comment, Timestamp actionTimestamp) {
         this.id = id;
-        this.rateTimestamp = rateTimestamp;
         this.rate = rate;
+        this.comment = comment;
+        this.actionTimestamp = actionTimestamp;
     }
 
+    @Override
     public CustomerProductIdentity getId() {
         return id;
     }
 
     public void setId(CustomerProductIdentity id) {
         this.id = id;
-    }
-
-    public Timestamp getRateTimestamp() {
-        return rateTimestamp;
-    }
-
-    public void setRateTimestamp(Timestamp rateTimestamp) {
-        this.rateTimestamp = rateTimestamp;
     }
 
     public Integer getRate() {
@@ -55,12 +52,29 @@ public class RateEntity implements CustomerProductEntity {
         this.rate = rate;
     }
 
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public Timestamp getActionTimestamp() {
+        return actionTimestamp;
+    }
+
+    public void setActionTimestamp(Timestamp actionTimestamp) {
+        this.actionTimestamp = actionTimestamp;
+    }
+
     @Override
     public String toString() {
         return "RateEntity{" +
                 "id=" + id +
-                ", rateTimestamp=" + rateTimestamp +
                 ", rate=" + rate +
+                ", comment='" + comment + '\'' +
+                ", actionTimestamp=" + actionTimestamp +
                 '}';
     }
 }

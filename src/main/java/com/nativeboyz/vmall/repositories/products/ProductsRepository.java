@@ -18,9 +18,7 @@ public interface ProductsRepository extends JpaRepository<ProductEntity, UUID> {
     @Query(value = "SELECT p FROM ProductEntity AS p JOIN p.categoryEntities AS c WHERE c.id = :id")
     Page<ProductEntity> findByCategoryId(@Param("id") UUID id, Pageable pageable);
 
-    @Query(value = "SELECT p FROM ProductEntity AS p WHERE LOWER(p.name) LIKE %:text% OR LOWER(productInfoEntity.hashTags) LIKE %:text%")
+    @Query(value = "SELECT p FROM ProductEntity AS p WHERE LOWER(p.title) LIKE %:text% OR LOWER(detailsEntity.keywords) LIKE %:text%")
     Page<ProductEntity> findByTextMatch(@Param("text") String text, Pageable pageable);
-
-    // TODO: Change hashTags type to String inside ProductInfoEntity & Transform on ProductInfoDto
 
 }

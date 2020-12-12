@@ -26,8 +26,8 @@ public class CategoryEntity {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @Column(name = "name", length = 100, nullable = false, unique = true)
-    private String name;
+    @Column(name = "title", length = 100, nullable = false, unique = true)
+    private String title;
 
     @Column(name = "description", length = 300)
     private String description;
@@ -45,16 +45,10 @@ public class CategoryEntity {
 
     public CategoryEntity() { }
 
-    public CategoryEntity(String name, String description, String imageName) {
-        this.name = name;
+    public CategoryEntity(String title, String description, String imageName) {
+        this.title = title;
         this.description = description;
         this.imageName = imageName;
-    }
-
-    public void update(String name, String description, String categoryImageName) {
-        setName(name);
-        setDescription(description);
-        setImageName(categoryImageName);
     }
 
     public UUID getId() {
@@ -65,12 +59,12 @@ public class CategoryEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -102,7 +96,7 @@ public class CategoryEntity {
     public String toString() {
         return "CategoryEntity{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", imageName='" + imageName + '\'' +
                 ", productEntities=" + productEntities +

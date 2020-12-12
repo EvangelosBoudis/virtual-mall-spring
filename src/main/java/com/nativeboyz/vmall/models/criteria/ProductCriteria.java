@@ -1,6 +1,6 @@
 package com.nativeboyz.vmall.models.criteria;
 
-import com.nativeboyz.vmall.models.ImageAction;
+import com.nativeboyz.vmall.models.dto.OrderedImage;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -15,7 +15,7 @@ public class ProductCriteria {
 
     @NotNull
     @NotBlank
-    protected String name;
+    protected String title;
 
     @NotNull
     protected Float price;
@@ -25,34 +25,35 @@ public class ProductCriteria {
     protected List<UUID> categories;
 
     @NotNull
-    protected List<ImageAction> imageActions;
+    protected List<OrderedImage> orderedImages;
 
     @NotNull
     @NotBlank
     protected String description;
 
-    protected String details;
+    protected String characteristics;
 
-    protected List<String> hashTags;
+    @NotNull
+    protected List<String> keywords;
 
     public ProductCriteria(
             @NotNull UUID ownerId,
-            @NotNull @NotBlank String name,
+            @NotNull @NotBlank String title,
             @NotNull Float price,
             @NotNull @NotEmpty List<UUID> categories,
-            @NotNull List<ImageAction> imageActions,
+            @NotNull List<OrderedImage> orderedImages,
             @NotNull @NotBlank String description,
-            String details,
-            List<String> hashTags
+            String characteristics,
+            @NotNull List<String> keywords
     ) {
         this.ownerId = ownerId;
-        this.name = name;
+        this.title = title;
         this.price = price;
         this.categories = categories;
-        this.imageActions = imageActions;
+        this.orderedImages = orderedImages;
         this.description = description;
-        this.details = details;
-        this.hashTags = hashTags;
+        this.characteristics = characteristics;
+        this.keywords = keywords;
     }
 
     public UUID getOwnerId() {
@@ -63,12 +64,12 @@ public class ProductCriteria {
         this.ownerId = ownerId;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Float getPrice() {
@@ -87,12 +88,12 @@ public class ProductCriteria {
         this.categories = categories;
     }
 
-    public List<ImageAction> getImageActions() {
-        return imageActions;
+    public List<OrderedImage> getOrderedImages() {
+        return orderedImages;
     }
 
-    public void setImageActions(List<ImageAction> imageActions) {
-        this.imageActions = imageActions;
+    public void setOrderedImages(List<OrderedImage> orderedImages) {
+        this.orderedImages = orderedImages;
     }
 
     public String getDescription() {
@@ -103,33 +104,33 @@ public class ProductCriteria {
         this.description = description;
     }
 
-    public String getDetails() {
-        return details;
+    public String getCharacteristics() {
+        return characteristics;
     }
 
-    public void setDetails(String details) {
-        this.details = details;
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
     }
 
-    public List<String> getHashTags() {
-        return hashTags;
+    public List<String> getKeywords() {
+        return keywords;
     }
 
-    public void setHashTags(List<String> hashTags) {
-        this.hashTags = hashTags;
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
     }
 
     @Override
     public String toString() {
         return "ProductCriteria{" +
                 "ownerId=" + ownerId +
-                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 ", price=" + price +
                 ", categories=" + categories +
-                ", imageActions=" + imageActions +
+                ", orderedImages=" + orderedImages +
                 ", description='" + description + '\'' +
-                ", details='" + details + '\'' +
-                ", hashTags=" + hashTags +
+                ", characteristics='" + characteristics + '\'' +
+                ", keywords=" + keywords +
                 '}';
     }
 }

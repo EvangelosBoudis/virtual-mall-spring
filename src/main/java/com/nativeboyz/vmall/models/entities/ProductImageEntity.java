@@ -1,7 +1,7 @@
 package com.nativeboyz.vmall.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.nativeboyz.vmall.models.dto.ProductImageDto;
+import com.nativeboyz.vmall.models.dto.OrderedImage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +31,9 @@ public class ProductImageEntity {
         this.priorityLevel = priorityLevel;
     }
 
-    public ProductImageEntity(ProductImageDto dto) {
+    public ProductImageEntity(OrderedImage dto) {
         imageName = dto.getName();
-        priorityLevel = dto.getPriorityLevel();
+        priorityLevel = dto.getOrder();
     }
 
     public String getImageName() {

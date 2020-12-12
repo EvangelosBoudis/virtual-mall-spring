@@ -11,30 +11,27 @@ import java.util.stream.Collectors;
 public class ProductDto {
 
     protected UUID id;
-    protected String name;
+    protected String title;
     protected Float price;
     protected Timestamp uploadTime;
 
     protected UUID ownerId;
     protected List<UUID> categories;
-    protected List<ProductImageDto> images;
+    protected List<OrderedImage> images;
 
-    protected Integer viewsQty;
-    protected Integer favoritesQty;
-    protected Float avgRate;
-    protected Boolean favorite;
+    protected ProductAdditionalInfo additionalInfo;
 
     public ProductDto(ProductEntity entity) {
         id = entity.getId();
-        name = entity.getName();
+        title = entity.getTitle();
         price = entity.getPrice();
         uploadTime = entity.getUploadTime();
 
         ownerId = entity.getCustomerEntity().getId();
 
-        images = entity.getProductImageEntities()
+        images = entity.getImageEntities()
                 .stream()
-                .map(ProductImageDto::new)
+                .map(OrderedImage::new)
                 .collect(Collectors.toList());
 
         categories = entity.getCategoryEntities()
@@ -51,12 +48,12 @@ public class ProductDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Float getPrice() {
@@ -91,60 +88,33 @@ public class ProductDto {
         this.categories = categories;
     }
 
-    public List<ProductImageDto> getImages() {
+    public List<OrderedImage> getImages() {
         return images;
     }
 
-    public void setImages(List<ProductImageDto> images) {
+    public void setImages(List<OrderedImage> images) {
         this.images = images;
     }
 
-    public Integer getViewsQty() {
-        return viewsQty;
+    public ProductAdditionalInfo getAdditionalInfo() {
+        return additionalInfo;
     }
 
-    public void setViewsQty(Integer viewsQty) {
-        this.viewsQty = viewsQty;
-    }
-
-    public Integer getFavoritesQty() {
-        return favoritesQty;
-    }
-
-    public void setFavoritesQty(Integer favoritesQty) {
-        this.favoritesQty = favoritesQty;
-    }
-
-    public Float getAvgRate() {
-        return avgRate;
-    }
-
-    public void setAvgRate(Float avgRate) {
-        this.avgRate = avgRate;
-    }
-
-    public Boolean getFavorite() {
-        return favorite;
-    }
-
-    public void setFavorite(Boolean favorite) {
-        this.favorite = favorite;
+    public void setAdditionalInfo(ProductAdditionalInfo additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 
     @Override
     public String toString() {
         return "ProductDto{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 ", price=" + price +
                 ", uploadTime=" + uploadTime +
                 ", ownerId=" + ownerId +
                 ", categories=" + categories +
                 ", images=" + images +
-                ", viewsQty=" + viewsQty +
-                ", favoritesQty=" + favoritesQty +
-                ", avgRate=" + avgRate +
-                ", favorite=" + favorite +
+                ", additionalInfo=" + additionalInfo +
                 '}';
     }
 }

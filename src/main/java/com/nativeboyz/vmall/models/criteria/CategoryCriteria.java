@@ -7,23 +7,23 @@ public class CategoryCriteria {
 
     @NotNull
     @NotBlank
-    private String name;
+    private String title;
 
     private String description;
 
     public CategoryCriteria() { }
 
-    public CategoryCriteria(@NotNull @NotBlank String name, String description) {
-        this.name = name;
+    public CategoryCriteria(@NotNull @NotBlank String title, String description) {
+        this.title = title;
         this.description = description;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -37,7 +37,7 @@ public class CategoryCriteria {
     @Override
     public String toString() {
         return "CategoryCriteria{" +
-                "name='" + name + '\'' +
+                "title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 '}';
     }

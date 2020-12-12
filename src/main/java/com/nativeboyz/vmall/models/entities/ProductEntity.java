@@ -23,8 +23,8 @@ public class ProductEntity {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @Column(name = "name", length = 100, nullable = false)
-    private String name;
+    @Column(name = "title", length = 100, nullable = false)
+    private String title;
 
     @Column(name = "price", nullable = false)
     private Float price;
@@ -33,15 +33,15 @@ public class ProductEntity {
     private Timestamp uploadTime;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "info_id")
-    private ProductInfoEntity productInfoEntity;
+    @JoinColumn(name = "details_id")
+    private ProductDetailsEntity detailsEntity;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private CustomerEntity customerEntity;
 
     @OneToMany(mappedBy = "productEntity", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<ProductImageEntity> productImageEntities;
+    private Set<ProductImageEntity> imageEntities;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -62,8 +62,8 @@ public class ProductEntity {
 
     public ProductEntity() { }
 
-    public ProductEntity(String name, Float price) {
-        this.name = name;
+    public ProductEntity(String title, Float price) {
+        this.title = title;
         this.price = price;
         this.uploadTime = new Timestamp(System.currentTimeMillis());
     }
@@ -76,12 +76,12 @@ public class ProductEntity {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Float getPrice() {
@@ -100,12 +100,12 @@ public class ProductEntity {
         this.uploadTime = uploadTime;
     }
 
-    public ProductInfoEntity getProductInfoEntity() {
-        return productInfoEntity;
+    public ProductDetailsEntity getDetailsEntity() {
+        return detailsEntity;
     }
 
-    public void setProductInfoEntity(ProductInfoEntity productInfoEntity) {
-        this.productInfoEntity = productInfoEntity;
+    public void setDetailsEntity(ProductDetailsEntity detailsEntity) {
+        this.detailsEntity = detailsEntity;
     }
 
     @JsonIgnore
@@ -119,14 +119,14 @@ public class ProductEntity {
     }
 
     @JsonManagedReference
-    public Set<ProductImageEntity> getProductImageEntities() {
+    public Set<ProductImageEntity> getImageEntities() {
         logger.info("getProductImageEntities");
-        return productImageEntities;
+        return imageEntities;
     }
 
-    public void setProductImageEntities(Set<ProductImageEntity> productImageEntities) {
-        this.productImageEntities = productImageEntities;
-        productImageEntities.forEach(image -> image.setProductEntity(this));
+    public void setImageEntities(Set<ProductImageEntity> imageEntities) {
+        this.imageEntities = imageEntities;
+        imageEntities.forEach(image -> image.setProductEntity(this));
     }
 
     @JsonIgnore
@@ -173,12 +173,12 @@ public class ProductEntity {
     public String toString() {
         return "ProductEntity{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 ", price=" + price +
                 ", uploadTime=" + uploadTime +
-                ", productInfoEntity=" + productInfoEntity +
+                ", detailsEntity=" + detailsEntity +
                 ", customerEntity=" + customerEntity +
-                ", productImageEntities=" + productImageEntities +
+                ", imageEntities=" + imageEntities +
                 ", categoryEntities=" + categoryEntities +
                 ", favoriteEntities=" + favoriteEntities +
                 ", viewEntities=" + viewEntities +

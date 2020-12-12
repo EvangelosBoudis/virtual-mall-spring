@@ -16,14 +16,14 @@ public class SearchEntity {
     @EmbeddedId
     private SearchIdentity id;
 
-    @Column(name = "search_timestamp")
-    private Timestamp searchTimestamp;
+    @Column(name = "action_timestamp")
+    private Timestamp actionTimestamp;
 
     public SearchEntity() { }
 
-    public SearchEntity(SearchIdentity id, Timestamp searchTimestamp) {
+    public SearchEntity(SearchIdentity id, Timestamp actionTimestamp) {
         this.id = id;
-        this.searchTimestamp = searchTimestamp;
+        this.actionTimestamp = actionTimestamp;
     }
 
     public SearchIdentity getId() {
@@ -34,19 +34,19 @@ public class SearchEntity {
         this.id = id;
     }
 
-    public Timestamp getSearchTimestamp() {
-        return searchTimestamp;
+    public Timestamp getActionTimestamp() {
+        return actionTimestamp;
     }
 
-    public void setSearchTimestamp(Timestamp searchTimestamp) {
-        this.searchTimestamp = searchTimestamp;
+    public void setActionTimestamp(Timestamp actionTimestamp) {
+        this.actionTimestamp = actionTimestamp;
     }
 
     @Override
     public String toString() {
         return "SearchEntity{" +
                 "id=" + id +
-                ", searchTimestamp=" + searchTimestamp +
+                ", actionTimestamp=" + actionTimestamp +
                 '}';
     }
 }

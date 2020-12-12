@@ -1,5 +1,6 @@
 package com.nativeboyz.vmall.services.categories;
 
+import com.nativeboyz.vmall.models.criteria.CategoryCriteria;
 import com.nativeboyz.vmall.models.entities.CategoryEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +13,12 @@ public interface CategoriesService {
 
     Page<CategoryEntity> findCategories(Pageable pageable);
 
-    CategoryEntity saveCategory(CategoryEntity entity);
+    CategoryEntity saveCategory(CategoryCriteria criteria, String filename);
+
+    CategoryEntity updateCategory(UUID id, CategoryCriteria criteria, String filename);
 
     void deleteCategory(UUID id);
+
+    String findCategoryImageName(UUID id);
 
 }

@@ -17,14 +17,14 @@ public class ViewEntity implements CustomerProductEntity {
     @EmbeddedId
     private CustomerProductIdentity id;
 
-    @Column(name = "view_timestamp")
-    private Timestamp viewTimestamp;
+    @Column(name = "action_timestamp")
+    private Timestamp actionTimestamp;
 
     public ViewEntity() { }
 
-    public ViewEntity(CustomerProductIdentity id, Timestamp viewTimestamp) {
+    public ViewEntity(CustomerProductIdentity id, Timestamp actionTimestamp) {
         this.id = id;
-        this.viewTimestamp = viewTimestamp;
+        this.actionTimestamp = actionTimestamp;
     }
 
     public CustomerProductIdentity getId() {
@@ -35,19 +35,19 @@ public class ViewEntity implements CustomerProductEntity {
         this.id = id;
     }
 
-    public Timestamp getViewTimestamp() {
-        return viewTimestamp;
+    public Timestamp getActionTimestamp() {
+        return actionTimestamp;
     }
 
-    public void setViewTimestamp(Timestamp viewTimestamp) {
-        this.viewTimestamp = viewTimestamp;
+    public void setActionTimestamp(Timestamp actionTimestamp) {
+        this.actionTimestamp = actionTimestamp;
     }
 
     @Override
     public String toString() {
         return "ViewEntity{" +
                 "id=" + id +
-                ", viewTimestamp=" + viewTimestamp +
+                ", actionTimestamp=" + actionTimestamp +
                 '}';
     }
 }
