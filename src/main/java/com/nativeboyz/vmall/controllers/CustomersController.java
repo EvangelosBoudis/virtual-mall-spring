@@ -1,12 +1,13 @@
 package com.nativeboyz.vmall.controllers;
 
+import com.nativeboyz.vmall.models.criteria.QueryCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.entities.CustomerEntity;
-import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.models.criteria.CustomerCriteria;
 import com.nativeboyz.vmall.models.criteria.PageCriteria;
 import com.nativeboyz.vmall.models.dto.TransactionDto;
 import com.nativeboyz.vmall.services.customers.CustomersService;
+import com.nativeboyz.vmall.services.products.ProductsService;
 import com.nativeboyz.vmall.services.storage.StorageService;
 import com.nativeboyz.vmall.tools.UrlGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,19 @@ import java.util.UUID;
 public class CustomersController {
 
     private final CustomersService customersService;
+    private final ProductsService productsService;
     private final StorageService storageService;
 
     @Autowired
-    public CustomersController(CustomersService customersService, StorageService storageService) {
+    public CustomersController(CustomersService customersService, ProductsService productsService, StorageService storageService) {
         this.customersService = customersService;
+        this.productsService = productsService;
         this.storageService = storageService;
     }
 
     @GetMapping()
     public Page<CustomerEntity> getCustomers(PageCriteria criteria) {
-        Page<CustomerEntity> customers = customersService.findCustomers(criteria.asPageable());
+        Page<CustomerEntity> customers = customersService.findCustomers(criteria.getPageable());
         customers.forEach(customer -> {
             String url = UrlGenerator.fileNameToUrl(customer.getImageName());
             customer.setImageName(url);
@@ -49,32 +52,32 @@ public class CustomersController {
     }
 
     @GetMapping("/{id}/products")
-    public Page<ProductEntity> getCustomerProducts(
+    public Page<ProductDto> getCustomerProducts(
             @PathVariable UUID id,
-            PageCriteria criteria
+            QueryCriteria criteria
     ) {
-        return customersService.findCustomerProducts(id, criteria.asPageable());
+        return productsService.findCustomerProducts(id, criteria);
     }
 
     @GetMapping("/{id}/favorite-products")
     public Page<ProductDto> getCustomerFavoriteProducts(
             @PathVariable UUID id,
-            PageCriteria criteria
+            QueryCriteria criteria
     ) {
-        // TODO: implement
-        return null;
+        return productsService.findCustomerFavoriteProducts(id, criteria);
     }
 
     @GetMapping("/{id}/viewed-products")
     public Page<ProductDto> getCustomerViewedProducts(
-            PageCriteria criteria
+            @PathVariable UUID id,
+            QueryCriteria criteria
     ) {
-        // TODO: implement
-        return null;
+        return productsService.findCustomerViewedProducts(id, criteria);
     }
 
     @GetMapping("/{id}/search-history")
     public Page<String> getCustomerSearchHistory(
+            @PathVariable UUID id,
             PageCriteria criteria
     ) {
         // TODO: implement

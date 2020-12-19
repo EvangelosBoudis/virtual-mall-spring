@@ -57,7 +57,7 @@ public class ProductDetailsDto extends ProductDto {
                 ", ownerId=" + ownerId +
                 ", categories=" + categories +
                 ", images=" + images +
-                ", additionalInfo=" + additionalInfo +
+                ", info=" + info +
                 '}';
     }
 }

@@ -15,21 +15,19 @@ import com.nativeboyz.vmall.repositories.productImages.ProductImagesRepository;
 import com.nativeboyz.vmall.repositories.products.ProductsRepository;
 import com.nativeboyz.vmall.repositories.rates.RatesRepository;
 import com.nativeboyz.vmall.repositories.views.ViewsRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.nativeboyz.vmall.specifications.FavoriteSpecification;
+import com.nativeboyz.vmall.specifications.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ProductsServiceImpl implements ProductsService {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ProductsRepository productsRepository;
     private final CategoriesRepository categoriesRepository;
@@ -49,7 +47,8 @@ public class ProductsServiceImpl implements ProductsService {
             ViewsRepository viewsRepository,
             RatesRepository ratesRepository,
             FavoritesRepository favoritesRepository,
-            ProductImagesRepository productImagesRepository) {
+            ProductImagesRepository productImagesRepository
+    ) {
         this.productsRepository = productsRepository;
         this.categoriesRepository = categoriesRepository;
         this.customersRepository = customersRepository;
@@ -60,61 +59,69 @@ public class ProductsServiceImpl implements ProductsService {
     }
 
     @Override
-    public ProductDto findProduct(UUID productId, UUID customerId) {
-        ProductEntity entity = productsRepository.findById(productId).orElseThrow();
-        return applyAdditionalInfo(new ProductDto(entity), customerId);
+    public ProductDto findProduct(UUID productId, UUID requesterId) {
+        ProductEntity productEntity = productsRepository.findById(productId).orElseThrow();
+        ProductDto productDto = new ProductDto(productEntity);
+        productDto.setInfo(getAdditionalInfo(productId, requesterId));
+        return productDto;
     }
 
     @Override
-    public ProductDetailsDto findProductInfo(UUID productId, UUID customerId) {
-        ProductEntity entity = productsRepository.findById(productId).orElseThrow();
-        return applyAdditionalInfo(new ProductDetailsDto(entity), customerId);
+    public ProductDetailsDto findProductDetails(UUID productId, UUID requesterId) {
+        ProductEntity productEntity = productsRepository.findById(productId).orElseThrow();
+        ProductDetailsDto productDetailsDto = new ProductDetailsDto(productEntity);
+        productDetailsDto.setInfo(getAdditionalInfo(productId, requesterId));
+        return productDetailsDto;
     }
 
     @Override
-    public Page<ProductDto> findProducts(QueryCriteria criteria, UUID customerId) {
+    public Page<ProductDto> findProducts(UUID requesterId, QueryCriteria criteria) {
+        Page<ProductEntity> productEntities = productsRepository.findAll(
+                new ProductSpecification(criteria.getCategoryId(), criteria.getSearchKey()),
+                criteria.getPageable()
+        );
+        return entityToDto(productEntities);
+    }
 
-        // Criteria
-        Pageable pageable = criteria.getPageable();
-        UUID categoryId = criteria.getCategoryId();
-        String textMatch = criteria.getTextMatch();
+    @Override
+    public Page<ProductDto> findCustomerProducts(UUID customerId, QueryCriteria criteria) {
+        return entityToDto(
+                productsRepository.findAllByCustomerId(customerId, criteria.getPageable())
+        );
+    }
 
-        logger.info("page: " + pageable.toString() + " category: " + categoryId + " text: " + textMatch);
+    @Override
+    public Page<ProductDto> findCustomerFavoriteProducts(UUID customerId, QueryCriteria criteria) {
+        // by default order by "actionTimestamp"
+        if (criteria.getSort() == null) criteria.setSort("actionTimestamp");
 
-        Page<ProductEntity> entities;
+        Page<UUID> productIds = favoritesRepository
+                .findAll(new FavoriteSpecification(customerId, criteria.getSearchKey()), criteria.getPageable())
+                .map(f -> f.getId().getProductId());
 
-        if (categoryId != null) {
-            entities = productsRepository.findByCategoryId(categoryId, pageable);
-        } else if (textMatch != null) {
-            entities = productsRepository.findByTextMatch(textMatch.toLowerCase(), pageable);
-        } else {
-            entities = productsRepository.findAll(pageable);
-        }
+        Stream<ProductEntity> productEntities = productsRepository
+                .findAllById(productIds.stream().collect(Collectors.toList()))
+                .stream();
 
-        Page<ProductDto> products = entities.map(ProductDto::new);
+        Page<ProductEntity> transformed = productIds.map(id -> productEntities.filter(p -> p.getId() == id).findAny().orElseThrow());
+        return entityToDto(transformed);
+    }
 
-        List<UUID> ids = products
-                .map(ProductDto::getId)
+    @Override
+    public Page<ProductDto> findCustomerViewedProducts(UUID customerId, QueryCriteria criteria) {
+        // TODO: Replace with Specification Api
+        return entityToDto(
+                productsRepository.findAllCustomerViews(customerId, criteria.getPageable())
+        );
+    }
+
+    @Override
+    public List<String> findProductImageNames(UUID productId) {
+        return productImagesRepository
+                .findAllByProductId(productId)
                 .stream()
+                .map(ProductImageEntity::getImageName)
                 .collect(Collectors.toList());
-
-        Map<UUID, Integer> viewMap = mapCount(viewsRepository.findAllByProductId(ids));
-        Map<UUID, Integer> favoriteMap = mapCount(favoritesRepository.findAllByProductId(ids));
-        Map<UUID, Float> rateMap = mapAvgRate(ratesRepository.findAllByProductId(ids));
-
-        products.forEach(product -> {
-            Integer viewsQty = viewMap.get(product.getId());
-            Integer favoritesQty = favoriteMap.get(product.getId());
-            ProductAdditionalInfo additionalInfo = new ProductAdditionalInfo(
-                    viewsQty != null ? viewsQty : 0,
-                    favoritesQty != null ? favoritesQty : 0,
-                    rateMap.get(product.getId()),
-                    null
-            );
-            product.setAdditionalInfo(additionalInfo);
-        });
-
-        return products;
     }
 
     @Override
@@ -150,17 +157,19 @@ public class ProductsServiceImpl implements ProductsService {
 
         productEntity.setImageEntities(imageEntities);
 
-        ProductDetailsDto infoDto = new ProductDetailsDto(productsRepository.save(productEntity));
-        applyAdditionalInfo(infoDto, infoDto.getOwnerId());
-        return infoDto;
+        ProductDetailsDto productDetailsDto = new ProductDetailsDto(productsRepository.save(productEntity));
+        productDetailsDto.setInfo(
+                getAdditionalInfo(productDetailsDto.getId(), productDetailsDto.getOwnerId())
+        );
+        return productDetailsDto;
     }
 
     @Override
     @Transactional
-    public ProductDetailsDto updateProduct(UUID id, ProductCriteria criteria) {
+    public ProductDetailsDto updateProduct(UUID productId, ProductCriteria criteria) {
 
         ProductEntity productEntity = productsRepository
-                .findById(id)
+                .findById(productId)
                 .orElseThrow();
 
         productEntity.setTitle(criteria.getTitle());
@@ -202,35 +211,50 @@ public class ProductsServiceImpl implements ProductsService {
         productEntity.setImageEntities(imageEntities);
 
         // #3 save product entity
-        ProductDetailsDto detailsDto = new ProductDetailsDto(productsRepository.save(productEntity));
-        applyAdditionalInfo(detailsDto, detailsDto.getOwnerId());
-        return detailsDto;
-    }
-
-    @Override
-    public void deleteProduct(UUID id) {
-        productsRepository.deleteById(id);
-    }
-
-    @Override
-    public List<String> findProductImageNames(UUID id) {
-        return productImagesRepository
-                .findByProductId(id)
-                .stream()
-                .map(ProductImageEntity::getImageName)
-                .collect(Collectors.toList());
-    }
-
-    private <T extends ProductDto> T applyAdditionalInfo(T dto, UUID customerId) {
-        UUID id = dto.getId();
-        ProductAdditionalInfo additionalInfo = new ProductAdditionalInfo(
-                viewsRepository.countByProductId(id),
-                favoritesRepository.countByProductId(id),
-                ratesRepository.avgRateByProductId(id),
-                (favoritesRepository.isFavoriteByCustomer(id, customerId) > 0)
+        ProductDetailsDto productDetailsDto = new ProductDetailsDto(productsRepository.save(productEntity));
+        productDetailsDto.setInfo(
+                getAdditionalInfo(productDetailsDto.getId(), productDetailsDto.getOwnerId())
         );
-        dto.setAdditionalInfo(additionalInfo);
-        return  dto;
+        return productDetailsDto;
+    }
+
+    @Override
+    public void deleteProduct(UUID productId) {
+        productsRepository.deleteById(productId);
+    }
+
+    private Page<ProductDto> entityToDto(Page<ProductEntity> products) {
+
+        List<UUID> ids = products
+                .map(ProductEntity::getId)
+                .stream()
+                .collect(Collectors.toList());
+
+        Map<UUID, Integer> viewsMap = mapCount(viewsRepository.findAllByProductId(ids));
+        Map<UUID, Integer> favoritesMap = mapCount(favoritesRepository.findAllByProductId(ids));
+        Map<UUID, Float> ratesMap = mapAvgRate(ratesRepository.findAllByProductId(ids));
+
+        return products.map(product -> {
+            ProductDto dto = new ProductDto(product);
+            Integer views = viewsMap.get(product.getId());
+            Integer favorites = favoritesMap.get(product.getId());
+            ProductAdditionalInfo info = new ProductAdditionalInfo(
+                    views != null ? views : 0,
+                    favorites != null ? favorites : 0,
+                    ratesMap.get(product.getId()),
+                    null
+            );
+            dto.setInfo(info);
+            return dto;
+        });
+    }
+
+    private ProductAdditionalInfo getAdditionalInfo(UUID productId, UUID requesterId) {
+        int views = viewsRepository.countByProductId(productId);
+        int favorites = favoritesRepository.countByProductId(productId);
+        Float rates = ratesRepository.findProductAvgRate(productId);
+        boolean customerFavorite = favoritesRepository.isFavoriteByCustomer(productId, requesterId) > 0;
+        return new ProductAdditionalInfo(views, favorites, rates, customerFavorite);
     }
 
     private <T extends CustomerProductEntity> Map<UUID, Integer> mapCount(List<T> entities) {
@@ -243,14 +267,14 @@ public class ProductsServiceImpl implements ProductsService {
         return countMap;
     }
 
-    private Map<UUID, Float> mapAvgRate(List<RateEntity> entities) {
-        Map<UUID, Integer> countMap = mapCount(entities);
+    private Map<UUID, Float> mapAvgRate(List<RateEntity> rates) {
+        Map<UUID, Integer> countMap = mapCount(rates);
         Map<UUID, Float> sumRateMap = new HashMap<>();
 
-        entities.forEach(e -> {
-            UUID id = e.getId().getProductId();
+        rates.forEach(rate -> {
+            UUID id = rate.getId().getProductId();
             float preRate = (sumRateMap.get(id) != null) ? sumRateMap.get(id) : 0;
-            sumRateMap.put(id, preRate + e.getRate());
+            sumRateMap.put(id, preRate + rate.getRate());
         });
 
         return new HashMap<>() {{

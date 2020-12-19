@@ -11,18 +11,24 @@ import java.util.UUID;
 
 public interface ProductsService {
 
-    ProductDto findProduct(UUID productId, UUID customerId);
+    ProductDto findProduct(UUID productId, UUID requesterId);
 
-    ProductDetailsDto findProductInfo(UUID productId, UUID customerId);
+    ProductDetailsDto findProductDetails(UUID productId, UUID requesterId);
 
-    Page<ProductDto> findProducts(QueryCriteria criteria, UUID customerId);
+    Page<ProductDto> findProducts(UUID requesterId, QueryCriteria criteria);
+
+    Page<ProductDto> findCustomerProducts(UUID customerId, QueryCriteria criteria);
+
+    Page<ProductDto> findCustomerFavoriteProducts(UUID customerId, QueryCriteria criteria);
+
+    Page<ProductDto> findCustomerViewedProducts(UUID customerId, QueryCriteria criteria);
+
+    List<String> findProductImageNames(UUID productId);
 
     ProductDetailsDto saveProduct(ProductCriteria criteria);
 
-    ProductDetailsDto updateProduct(UUID id, ProductCriteria criteria);
+    ProductDetailsDto updateProduct(UUID productId, ProductCriteria criteria);
 
-    void deleteProduct(UUID id);
-
-    List<String> findProductImageNames(UUID id);
+    void deleteProduct(UUID productId);
 
 }

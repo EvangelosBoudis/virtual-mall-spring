@@ -1,9 +1,7 @@
 package com.nativeboyz.vmall.services.customers;
 
 import com.nativeboyz.vmall.models.entities.CustomerEntity;
-import com.nativeboyz.vmall.models.entities.ProductEntity;
 import com.nativeboyz.vmall.repositories.customers.CustomersRepository;
-import com.nativeboyz.vmall.repositories.products.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,20 +14,15 @@ import java.util.UUID;
 public class CustomersServiceImpl implements CustomersService {
 
     private final CustomersRepository customersRepository;
-    private final ProductsRepository productsRepository;
 
     @Autowired
-    public CustomersServiceImpl(
-            CustomersRepository customersRepository,
-            ProductsRepository productsRepository
-    ) {
+    public CustomersServiceImpl(CustomersRepository customersRepository) {
         this.customersRepository = customersRepository;
-        this.productsRepository = productsRepository;
     }
 
     @Override
-    public CustomerEntity findCustomer(UUID id) {
-        return customersRepository.findById(id).orElseThrow();
+    public CustomerEntity findCustomer(UUID customerId) {
+        return customersRepository.findById(customerId).orElseThrow();
     }
 
     @Override
@@ -44,13 +37,8 @@ public class CustomersServiceImpl implements CustomersService {
     }
 
     @Override
-    public void deleteCustomer(UUID id) {
-        customersRepository.deleteById(id);
-    }
-
-    @Override
-    public Page<ProductEntity> findCustomerProducts(UUID id, Pageable pageable) {
-        return productsRepository.findByCustomerId(id, pageable);
+    public void deleteCustomer(UUID customerId) {
+        customersRepository.deleteById(customerId);
     }
 
 }

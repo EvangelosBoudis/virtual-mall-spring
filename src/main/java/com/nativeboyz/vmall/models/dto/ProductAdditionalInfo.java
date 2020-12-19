@@ -2,32 +2,32 @@ package com.nativeboyz.vmall.models.dto;
 
 public class ProductAdditionalInfo {
 
-    private Integer viewsQty;
-    private Integer favoritesQty;
+    private Integer views;
+    private Integer favorites;
     private Float avgRate;
-    private Boolean favoriteByCustomer;
+    private Boolean requesterFavorite;
 
-    public ProductAdditionalInfo(Integer viewsQty, Integer favoritesQty, Float avgRate, Boolean favoriteByCustomer) {
-        this.viewsQty = viewsQty;
-        this.favoritesQty = favoritesQty;
+    public ProductAdditionalInfo(Integer views, Integer favorites, Float avgRate, Boolean requesterFavorite) {
+        this.views = views;
+        this.favorites = favorites;
         this.avgRate = avgRate;
-        this.favoriteByCustomer = favoriteByCustomer;
+        this.requesterFavorite = requesterFavorite;
     }
 
-    public Integer getViewsQty() {
-        return viewsQty;
+    public Integer getViews() {
+        return views;
     }
 
-    public void setViewsQty(Integer viewsQty) {
-        this.viewsQty = viewsQty;
+    public void setViews(Integer views) {
+        this.views = views;
     }
 
-    public Integer getFavoritesQty() {
-        return favoritesQty;
+    public Integer getFavorites() {
+        return favorites;
     }
 
-    public void setFavoritesQty(Integer favoritesQty) {
-        this.favoritesQty = favoritesQty;
+    public void setFavorites(Integer favorites) {
+        this.favorites = favorites;
     }
 
     public Float getAvgRate() {
@@ -38,21 +38,21 @@ public class ProductAdditionalInfo {
         this.avgRate = avgRate;
     }
 
-    public Boolean getFavoriteByCustomer() {
-        return favoriteByCustomer;
+    public Boolean getRequesterFavorite() {
+        return requesterFavorite;
     }
 
-    public void setFavoriteByCustomer(Boolean favoriteByCustomer) {
-        this.favoriteByCustomer = favoriteByCustomer;
+    public void setRequesterFavorite(Boolean requesterFavorite) {
+        this.requesterFavorite = requesterFavorite;
     }
 
     @Override
     public String toString() {
         return "ProductAdditionalInfo{" +
-                "viewsQty=" + viewsQty +
-                ", favoritesQty=" + favoritesQty +
+                "views=" + views +
+                ", favorites=" + favorites +
                 ", avgRate=" + avgRate +
-                ", favoriteByCustomer=" + favoriteByCustomer +
+                ", requesterFavorite=" + requesterFavorite +
                 '}';
     }
 }

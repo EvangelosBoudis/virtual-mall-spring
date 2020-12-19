@@ -11,6 +11,6 @@ import java.util.UUID;
 public interface ProductImagesRepository extends JpaRepository<ProductImageEntity, String> {
 
     @Query("SELECT p FROM ProductImageEntity AS p WHERE p.productEntity.id = :id")
-    List<ProductImageEntity> findByProductId(@Param("id") UUID id);
+    List<ProductImageEntity> findAllByProductId(@Param("id") UUID id);
 
 }

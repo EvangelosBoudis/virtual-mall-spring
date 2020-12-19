@@ -35,25 +35,23 @@ public class ProductsController {
     @GetMapping()
     public Page<ProductDto> getProducts(QueryCriteria criteria) {
         // TODO: JWT customerId
-        return productsService.findProducts(criteria, null);
+        return productsService.findProducts(null, criteria);
     }
 
     @GetMapping("/{id}")
     public ProductDto getProduct(
             @PathVariable UUID id,
-            @RequestParam("customerId") UUID customerId
+            @RequestParam("requesterId") UUID requesterId // TODO: JWT
     ) {
-        // TODO: Replace RequestParam with JWT
-        return productsService.findProduct(id, customerId);
+        return productsService.findProduct(id, requesterId);
     }
 
-    @GetMapping("/{id}/info")
-    public ProductDetailsDto getProductInfo(
+    @GetMapping("/{id}/details")
+    public ProductDetailsDto getProductDetails(
             @PathVariable UUID id,
-            @RequestParam("customerId") UUID customerId
+            @RequestParam("requesterId") UUID requesterId // TODO: JWT
     ) {
-        // TODO: Replace RequestParam with JWT
-        return productsService.findProductInfo(id, customerId);
+        return productsService.findProductDetails(id, requesterId);
     }
 
     @PostMapping()

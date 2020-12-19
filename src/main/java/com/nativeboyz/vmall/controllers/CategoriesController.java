@@ -39,7 +39,7 @@ public class CategoriesController {
     @GetMapping()
     public Page<CategoryEntity> getCategories(PageCriteria criteria) {
 
-        return categoriesService.findCategories(criteria.asPageable())
+        return categoriesService.findCategories(criteria.getPageable())
                 .map(category -> {
                     String url = UrlGenerator.fileNameToUrl(category.getImageName());
                     category.setImageName(url);

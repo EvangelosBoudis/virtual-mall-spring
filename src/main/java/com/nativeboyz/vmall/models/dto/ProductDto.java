@@ -19,7 +19,7 @@ public class ProductDto {
     protected List<UUID> categories;
     protected List<OrderedImage> images;
 
-    protected ProductAdditionalInfo additionalInfo;
+    protected ProductAdditionalInfo info;
 
     public ProductDto(ProductEntity entity) {
         id = entity.getId();
@@ -96,12 +96,12 @@ public class ProductDto {
         this.images = images;
     }
 
-    public ProductAdditionalInfo getAdditionalInfo() {
-        return additionalInfo;
+    public ProductAdditionalInfo getInfo() {
+        return info;
     }
 
-    public void setAdditionalInfo(ProductAdditionalInfo additionalInfo) {
-        this.additionalInfo = additionalInfo;
+    public void setInfo(ProductAdditionalInfo info) {
+        this.info = info;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ProductDto {
                 ", ownerId=" + ownerId +
                 ", categories=" + categories +
                 ", images=" + images +
-                ", additionalInfo=" + additionalInfo +
+                ", info=" + info +
                 '}';
     }
 }
