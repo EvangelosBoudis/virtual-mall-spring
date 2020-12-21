@@ -3,13 +3,14 @@ package com.nativeboyz.vmall.repositories.views;
 import com.nativeboyz.vmall.models.entities.ViewEntity;
 import com.nativeboyz.vmall.models.entities.identities.CustomerProductIdentity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface ViewsRepository extends JpaRepository<ViewEntity, CustomerProductIdentity> {
+public interface ViewsRepository extends JpaRepository<ViewEntity, CustomerProductIdentity>, JpaSpecificationExecutor<ViewEntity> {
 
     @Query("SELECT v FROM ViewEntity AS v WHERE v.id.productId IN :ids")
     List<ViewEntity> findAllByProductId(@Param("ids") List<UUID> ids);

@@ -17,6 +17,8 @@ import java.util.UUID;
  * @see com.nativeboyz.vmall.repositories.products.ProductsRepository
  */
 
+// TODO: BelongsToCategory(UUId id) & SatisfiesSearch(String searchKey)
+
 public class ProductSpecification implements Specification<ProductEntity> {
 
     private final UUID categoryId;

@@ -17,6 +17,7 @@ import com.nativeboyz.vmall.repositories.rates.RatesRepository;
 import com.nativeboyz.vmall.repositories.views.ViewsRepository;
 import com.nativeboyz.vmall.specifications.FavoriteSpecification;
 import com.nativeboyz.vmall.specifications.ProductSpecification;
+import com.nativeboyz.vmall.specifications.ViewsSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -109,6 +110,15 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public Page<ProductDto> findCustomerViewedProducts(UUID customerId, QueryCriteria criteria) {
+
+        // by default order by "actionTimestamp"
+        if (criteria.getSort() == null) criteria.setSort("actionTimestamp");
+
+        viewsRepository.findAll(
+                new ViewsSpecification(customerId, criteria.getSearchKey()),
+                criteria.getPageable()
+        );
+
         // TODO: Replace with Specification Api
         return entityToDto(
                 productsRepository.findAllCustomerViews(customerId, criteria.getPageable())
