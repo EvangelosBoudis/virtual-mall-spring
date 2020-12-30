@@ -12,7 +12,7 @@ import java.util.UUID;
  * The FavoriteSpecification implements Criteria queries based
  * on optional criteria.
  * For JPQL version see also:
- * @see com.nativeboyz.vmall.repositories.favorites.FavoritesRepository
+ * @see com.nativeboyz.vmall.repositories.favorites.FavoritesRepository findAllByCustomerId
  */
 
 public class FavoriteSpecification implements Specification<FavoriteEntity> {

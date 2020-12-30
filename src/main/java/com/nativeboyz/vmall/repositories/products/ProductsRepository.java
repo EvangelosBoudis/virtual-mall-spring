@@ -12,21 +12,16 @@ import java.util.UUID;
 
 public interface ProductsRepository extends JpaRepository<ProductEntity, UUID>, JpaSpecificationExecutor<ProductEntity> {
 
-    @Query(value = "SELECT p FROM ProductEntity AS p JOIN p.categoryEntities AS c WHERE c.id = :categoryId")
-    Page<ProductEntity> findAllByCategoryId(@Param("categoryId") UUID categoryId, Pageable pageable);
-
-    @Query(value = "SELECT p FROM ProductEntity AS p WHERE LOWER(p.title) LIKE %:searchKey% OR LOWER(p.detailsEntity.keywords) LIKE %:searchKey%")
-    Page<ProductEntity> findAllBySearchKey(@Param("searchKey") String searchKey, Pageable pageable);
-
     @Query(value = "SELECT p FROM ProductEntity AS p WHERE p.customerEntity.id = :customerId")
     Page<ProductEntity> findAllByCustomerId(@Param("customerId") UUID customerId, Pageable pageable);
 
-    @Query(value = "SELECT p FROM ProductEntity AS p JOIN p.favoriteEntities AS f WHERE f.id.customerId = :customerId")
-    Page<ProductEntity> findAllCustomerFavorites(@Param("customerId") UUID customerId, Pageable pageable);
+    @Query(countName = "ProductEntity.countBySearchKey", nativeQuery = true)
+    Page<ProductEntity> findAllBySearchKey(@Param("searchKey") String searchKey, Pageable pageable);
 
-    @Query(value = "SELECT p FROM ProductEntity AS p JOIN p.viewEntities AS v WHERE v.id.customerId = :customerId")
-    Page<ProductEntity> findAllCustomerViews(@Param("customerId") UUID customerId, Pageable pageable);
+    @Query(countName = "ProductEntity.countByCategoryId", nativeQuery = true)
+    Page<ProductEntity> findAllByCategoryId(@Param("categoryId") UUID categoryId, Pageable pageable);
+
+    @Query(countName = "ProductEntity.countByCategoryIdAndSearchKey", nativeQuery = true)
+    Page<ProductEntity> findAllByCategoryIdAndSearchKey(@Param("categoryId") UUID categoryId, @Param("searchKey") String searchKey, Pageable pageable);
 
 }
-
-// countQuery = "SELECT COUNT(p) FROM ProductEntity AS p WHERE p.customerEntity.id = :id"

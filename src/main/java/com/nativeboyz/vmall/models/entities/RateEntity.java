@@ -28,11 +28,11 @@ public class RateEntity implements CustomerProductEntity {
 
     public RateEntity() { }
 
-    public RateEntity(CustomerProductIdentity id, Integer rate, String comment, Timestamp actionTimestamp) {
+    public RateEntity(CustomerProductIdentity id, Integer rate, String comment) {
         this.id = id;
         this.rate = rate;
         this.comment = comment;
-        this.actionTimestamp = actionTimestamp;
+        this.actionTimestamp = new Timestamp(System.currentTimeMillis());
     }
 
     @Override

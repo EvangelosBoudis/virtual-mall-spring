@@ -22,9 +22,9 @@ public class ViewEntity implements CustomerProductEntity {
 
     public ViewEntity() { }
 
-    public ViewEntity(CustomerProductIdentity id, Timestamp actionTimestamp) {
+    public ViewEntity(CustomerProductIdentity id) {
         this.id = id;
-        this.actionTimestamp = actionTimestamp;
+        this.actionTimestamp = new Timestamp(System.currentTimeMillis());
     }
 
     public CustomerProductIdentity getId() {

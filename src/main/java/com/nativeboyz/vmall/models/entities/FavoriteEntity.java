@@ -25,10 +25,10 @@ public class FavoriteEntity implements CustomerProductEntity {
 
     public FavoriteEntity() { }
 
-    public FavoriteEntity(CustomerProductIdentity id, Boolean status, Timestamp actionTimestamp) {
+    public FavoriteEntity(CustomerProductIdentity id, Boolean status) {
         this.id = id;
         this.status = status;
-        this.actionTimestamp = actionTimestamp;
+        this.actionTimestamp = new Timestamp(System.currentTimeMillis());
     }
 
     @Override
