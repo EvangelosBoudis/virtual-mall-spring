@@ -1,9 +1,11 @@
 package com.nativeboyz.vmall.repositories.favorites;
 
+import com.nativeboyz.vmall.models.dto.CountDto;
 import com.nativeboyz.vmall.models.entities.*;
 import com.nativeboyz.vmall.models.entities.QFavoriteEntity;
 import com.nativeboyz.vmall.querydslExpressions.ProductExpressions;
 import com.nativeboyz.vmall.tools.QuerydslRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +58,22 @@ public class FavoritesQuerydslRepositoryImpl extends QuerydslRepository<Favorite
     }
 
     /*
+     * JpaRepository Version:
+     * @Query("SELECT f.product_id, COUNT(f.product_id) FROM FavoriteEntity AS f WHERE f.status = TRUE AND f.id.productId IN :productIds GROUP BY f.product_id")
+     * List<CountDto> findAllCountDtoByProductIds(@Param("productIds") List<UUID> productIds);
+     * */
+
+    @Override
+    public List<CountDto> findAllCountDtoByProductIds(List<UUID> productIds) {
+        QFavoriteEntity favorite = QFavoriteEntity.favoriteEntity;
+        return from(favorite)
+                .select(Projections.fields(CountDto.class, favorite.id.productId, favorite.id.productId.count().as("count")))
+                .where(favorite.status.eq(true).and(favorite.id.productId.in(productIds)))
+                .groupBy(favorite.id.productId)
+                .fetch();
+    }
+
+    /*
     * JpaRepository Version:
     * @Query("SELECT COUNT(f) FROM FavoriteEntity AS f WHERE f.id.productId = :id AND f.status = TRUE")
     * Integer countByProductId(@Param("id") UUID id);
@@ -82,9 +100,9 @@ public class FavoritesQuerydslRepositoryImpl extends QuerydslRepository<Favorite
     public long findCountByProductIdAndCustomerId(UUID productId, UUID customerId) {
         QFavoriteEntity favorite = QFavoriteEntity.favoriteEntity;
         return from(favorite)
-                .where(favorite.id.productId.eq(productId)
+                .where(favorite.status.eq(true)
+                        .and(favorite.id.productId.eq(productId))
                         .and(favorite.id.customerId.eq(customerId))
-                        .and(favorite.status.eq(true))
                 ).fetchCount();
     }
 

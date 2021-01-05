@@ -291,70 +291,46 @@ public class ProductsServiceImpl implements ProductsService {
                 .stream()
                 .collect(Collectors.toList());
 
-        Map<UUID, Long> vMap = calculateCount(viewsRepository.findAllByProductId(productIds));
-        Map<UUID, Long> fMap = calculateCount(favoritesRepository.findAllByProductId(productIds));
-        Map<UUID, Double> rMap = calculateAvgRate(ratesRepository.findAllByProductId(productIds));
+        List<CountDto> viewsDto = viewsRepository.findAllCountDtoByProductIds(productIds);
+        List<CountDto> favoritesDto = favoritesRepository.findAllCountDtoByProductIds(productIds);
+        List<RateDto> ratesDto = ratesRepository.findAllRateDtoByProductIds(productIds);
 
         return products.map(product -> {
 
-            Long views = vMap.get(product.getId());
-            Long favorites = fMap.get(product.getId());
+            Optional<CountDto> views = viewsDto
+                    .stream().filter(v -> v.getProductId().equals(product.getId())).findFirst();
+
+            Optional<CountDto> favorites = favoritesDto
+                    .stream().filter(v -> v.getProductId().equals(product.getId())).findFirst();
+
+            Optional<RateDto> rates = ratesDto
+                    .stream().filter(r -> r.getProductId().equals(product.getId())).findFirst();
 
             return new ProductDto(
                     product,
                     new ProductAdditionalInfo(
-                            views != null ? views : 0,
-                            favorites != null ? favorites : 0,
-                            rMap.get(product.getId()),
+                            views.map(CountDto::getCount).orElse(0L),
+                            favorites.map(CountDto::getCount).orElse(0L),
+                            rates.map(RateDto::getAvg).orElse((double) -1),
                             null
-                    )
-            );
+                    ));
         });
+
     }
 
     private ProductAdditionalInfo getProductAdditionalInfo(
             UUID productId,
             UUID requesterId
     ) {
+
+        boolean requesterFavorite = favoritesRepository.findCountByProductIdAndCustomerId(productId, requesterId) > 0;
+
         return new ProductAdditionalInfo(
                 viewsRepository.findCountByProductId(productId),
                 favoritesRepository.findCountByProductId(productId),
                 ratesRepository.findAvgRateByProductId(productId),
-                favoritesRepository.findCountByProductIdAndCustomerId(productId, requesterId) > 0
+                requesterFavorite
         );
-    }
-
-    private <T extends CustomerProductEntity> Map<UUID, Long> calculateCount(List<T> entities) {
-
-        Map<UUID, Long> map = new HashMap<>();
-
-        entities.forEach(entity -> {
-            UUID id = entity.getId().getProductId();
-            long count = (map.get(id) != null) ? map.get(id) : 0;
-            map.put(id, count + 1);
-        });
-
-        return map;
-    }
-
-    private Map<UUID, Double> calculateAvgRate(List<RateEntity> rateEntities) {
-
-        Map<UUID, Long> cMap = calculateCount(rateEntities);
-        Map<UUID, Double> rMap = new HashMap<>();
-
-        rateEntities.forEach(rateEntity -> {
-            UUID id = rateEntity.getId().getProductId();
-            double rate = (rMap.get(id) != null) ? rMap.get(id) : 0;
-            rMap.put(id, rate + rateEntity.getRate());
-        });
-
-        return new HashMap<>() {{
-            for (UUID key : rMap.keySet()) {
-                Double rates = rMap.get(key);
-                long views = (cMap.get(key) != null && cMap.get(key) > 0) ? cMap.get(key) : 1;
-                put(key, rates / views);
-            }
-        }};
     }
 
 }
