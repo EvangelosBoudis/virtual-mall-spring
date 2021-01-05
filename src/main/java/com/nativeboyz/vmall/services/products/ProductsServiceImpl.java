@@ -65,7 +65,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDto(
                 product,
-                getProductAdditionalInfo(productId, requesterId)
+                findProductAdditionalInfo(productId, requesterId)
         );
     }
 
@@ -80,7 +80,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDetailsDto(
                 product,
-                getProductAdditionalInfo(productId, requesterId)
+                findProductAdditionalInfo(productId, requesterId)
         );
     }
 
@@ -187,7 +187,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDetailsDto(
                 savedProduct,
-                getProductAdditionalInfo(savedProduct.getId(), null)
+                findProductAdditionalInfo(savedProduct.getId(), null)
         );
     }
 
@@ -243,7 +243,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDetailsDto(
                 updatedProduct,
-                getProductAdditionalInfo(updatedProduct.getId(), null)
+                findProductAdditionalInfo(updatedProduct.getId(), null)
         );
     }
 
@@ -263,25 +263,19 @@ public class ProductsServiceImpl implements ProductsService {
             );
     }
 
-    private <T extends CustomerProductEntity> Page<ProductEntity> convertCPtoProduct(Page<T> page) {
+    private ProductAdditionalInfo findProductAdditionalInfo(
+            UUID productId,
+            UUID requesterId
+    ) {
 
-        List<UUID> productIds = page
-                .map(cp -> cp.getId().getProductId())
-                .stream()
-                .collect(Collectors.toList());
+        boolean requesterFavorite = favoritesRepository.findCountByProductIdAndCustomerId(productId, requesterId) > 0;
 
-        List<ProductEntity> products = productsRepository.findAllById(productIds);
-
-        return page.map(cp ->
-                products.stream()
-                        .filter(p -> p.getId().equals(cp.getId().getProductId()))
-                        .findAny()
-                        .orElseThrow()
+        return new ProductAdditionalInfo(
+                viewsRepository.findCountByProductId(productId),
+                favoritesRepository.findCountByProductId(productId),
+                ratesRepository.findAvgRateByProductId(productId),
+                requesterFavorite
         );
-    }
-
-    private <T extends CustomerProductEntity> Page<ProductDto> convertCPtoDto(Page<T> page) {
-        return convertProductToDto(convertCPtoProduct(page));
     }
 
     private Page<ProductDto> convertProductToDto(Page<ProductEntity> products) {
@@ -318,19 +312,25 @@ public class ProductsServiceImpl implements ProductsService {
 
     }
 
-    private ProductAdditionalInfo getProductAdditionalInfo(
-            UUID productId,
-            UUID requesterId
-    ) {
+    private <T extends CustomerProductEntity> Page<ProductEntity> convertCPtoProduct(Page<T> page) {
 
-        boolean requesterFavorite = favoritesRepository.findCountByProductIdAndCustomerId(productId, requesterId) > 0;
+        List<UUID> productIds = page
+                .map(cp -> cp.getId().getProductId())
+                .stream()
+                .collect(Collectors.toList());
 
-        return new ProductAdditionalInfo(
-                viewsRepository.findCountByProductId(productId),
-                favoritesRepository.findCountByProductId(productId),
-                ratesRepository.findAvgRateByProductId(productId),
-                requesterFavorite
+        List<ProductEntity> products = productsRepository.findAllById(productIds);
+
+        return page.map(cp ->
+                products.stream()
+                        .filter(p -> p.getId().equals(cp.getId().getProductId()))
+                        .findAny()
+                        .orElseThrow()
         );
+    }
+
+    private <T extends CustomerProductEntity> Page<ProductDto> convertCPtoDto(Page<T> page) {
+        return convertProductToDto(convertCPtoProduct(page));
     }
 
 }
