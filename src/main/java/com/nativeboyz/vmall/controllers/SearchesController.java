@@ -20,7 +20,7 @@ public class SearchesController {
 
     @GetMapping()
     public List<String> findMatch(
-            @RequestParam @NotNull String searchKey
+            @RequestParam("searchKey") @NotNull String searchKey
     ) {
         // TODO: Implement
         return null;

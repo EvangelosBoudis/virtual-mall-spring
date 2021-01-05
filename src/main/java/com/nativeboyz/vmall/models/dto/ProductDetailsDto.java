@@ -12,8 +12,8 @@ public class ProductDetailsDto extends ProductDto {
     private String characteristics;
     private List<String> keywords;
 
-    public ProductDetailsDto(ProductEntity entity) {
-        super(entity);
+    public ProductDetailsDto(ProductEntity entity, ProductAdditionalInfo info) {
+        super(entity, info);
         description = entity.getDetailsEntity().getDescription();
         characteristics = entity.getDetailsEntity().getCharacteristics();
         String textKeywords = entity.getDetailsEntity().getKeywords();

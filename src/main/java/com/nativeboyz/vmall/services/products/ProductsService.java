@@ -1,13 +1,9 @@
 package com.nativeboyz.vmall.services.products;
 
-import com.nativeboyz.vmall.models.criteria.FavoriteCriteria;
 import com.nativeboyz.vmall.models.criteria.ProductCriteria;
 import com.nativeboyz.vmall.models.criteria.QueryCriteria;
-import com.nativeboyz.vmall.models.criteria.RateCriteria;
 import com.nativeboyz.vmall.models.dto.ProductDto;
 import com.nativeboyz.vmall.models.dto.ProductDetailsDto;
-import com.nativeboyz.vmall.models.entities.FavoriteEntity;
-import com.nativeboyz.vmall.models.entities.RateEntity;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -36,9 +32,5 @@ public interface ProductsService {
     void deleteProduct(UUID productId);
 
     void saveView(UUID customerId, UUID productId);
-
-    FavoriteEntity saveFavorite(FavoriteCriteria criteria);
-
-    RateEntity saveRate(RateCriteria criteria);
 
 }

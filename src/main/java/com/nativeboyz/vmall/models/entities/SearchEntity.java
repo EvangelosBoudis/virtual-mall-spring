@@ -21,9 +21,9 @@ public class SearchEntity {
 
     public SearchEntity() { }
 
-    public SearchEntity(SearchIdentity id, Timestamp actionTimestamp) {
+    public SearchEntity(SearchIdentity id) {
         this.id = id;
-        this.actionTimestamp = actionTimestamp;
+        this.actionTimestamp = new Timestamp(System.currentTimeMillis());
     }
 
     public SearchIdentity getId() {

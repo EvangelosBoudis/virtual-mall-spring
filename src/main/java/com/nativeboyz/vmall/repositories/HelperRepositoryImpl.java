@@ -32,4 +32,9 @@ public class HelperRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> {
         return data;
     }
 
+/*    public void existsByIdOrElseThrow(ID id) {
+        if (existsById(id)) return;
+        throw new EmptyResultDataAccessException(String.format("No %s entity with id %s exists!", entityInformation.getJavaType(), id), 1);
+    }*/
+
 }

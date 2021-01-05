@@ -2,7 +2,7 @@ package com.nativeboyz.vmall.controllers;
 
 import com.nativeboyz.vmall.models.criteria.RateCriteria;
 import com.nativeboyz.vmall.models.entities.RateEntity;
-import com.nativeboyz.vmall.services.products.ProductsService;
+import com.nativeboyz.vmall.services.rates.RatesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,18 +15,20 @@ import javax.validation.Valid;
 @RequestMapping("/rates")
 public class RatesController {
 
-    private final ProductsService productsService;
+    private final RatesService ratesService;
 
     @Autowired
-    public RatesController(ProductsService productsService) {
-        this.productsService = productsService;
+    public RatesController(RatesService ratesService) {
+        this.ratesService = ratesService;
     }
 
     @PostMapping()
     public RateEntity saveRate(
             @RequestBody @Valid RateCriteria criteria
     ) {
-        return productsService.saveRate(criteria);
+        return ratesService
+                .saveRate(criteria)
+                .orElseThrow();
     }
 
 }

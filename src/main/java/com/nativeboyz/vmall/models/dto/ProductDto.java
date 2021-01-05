@@ -21,7 +21,7 @@ public class ProductDto {
 
     protected ProductAdditionalInfo info;
 
-    public ProductDto(ProductEntity entity) {
+    public ProductDto(ProductEntity entity, ProductAdditionalInfo info) {
         id = entity.getId();
         title = entity.getTitle();
         price = entity.getPrice();
@@ -38,6 +38,8 @@ public class ProductDto {
                 .stream()
                 .map(CategoryEntity::getId)
                 .collect(Collectors.toList());
+
+        this.info = info;
     }
 
     public UUID getId() {

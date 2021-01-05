@@ -2,39 +2,39 @@ package com.nativeboyz.vmall.models.dto;
 
 public class ProductAdditionalInfo {
 
-    private Integer views;
-    private Integer favorites;
-    private Float avgRate;
+    private long views;
+    private long favorites;
+    private Double avgRate;
     private Boolean requesterFavorite;
 
-    public ProductAdditionalInfo(Integer views, Integer favorites, Float avgRate, Boolean requesterFavorite) {
+    public ProductAdditionalInfo(long views, long favorites, Double avgRate, Boolean requesterFavorite) {
         this.views = views;
         this.favorites = favorites;
         this.avgRate = avgRate;
         this.requesterFavorite = requesterFavorite;
     }
 
-    public Integer getViews() {
+    public long getViews() {
         return views;
     }
 
-    public void setViews(Integer views) {
+    public void setViews(long views) {
         this.views = views;
     }
 
-    public Integer getFavorites() {
+    public long getFavorites() {
         return favorites;
     }
 
-    public void setFavorites(Integer favorites) {
+    public void setFavorites(long favorites) {
         this.favorites = favorites;
     }
 
-    public Float getAvgRate() {
+    public Double getAvgRate() {
         return avgRate;
     }
 
-    public void setAvgRate(Float avgRate) {
+    public void setAvgRate(Double avgRate) {
         this.avgRate = avgRate;
     }
 
