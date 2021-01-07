@@ -4,6 +4,7 @@ import java.util.UUID;
 
 public interface CategoriesQuerydslRepository {
 
+    // TODO: Optional
     String findImageNameByCategoryId(UUID categoryId);
 
 }

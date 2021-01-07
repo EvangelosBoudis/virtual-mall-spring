@@ -187,7 +187,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDetailsDto(
                 savedProduct,
-                findProductAdditionalInfo(savedProduct.getId(), null)
+                findProductAdditionalInfo(savedProduct.getId(), criteria.getOwnerId())
         );
     }
 
@@ -243,7 +243,7 @@ public class ProductsServiceImpl implements ProductsService {
 
         return new ProductDetailsDto(
                 updatedProduct,
-                findProductAdditionalInfo(updatedProduct.getId(), null)
+                findProductAdditionalInfo(updatedProduct.getId(), criteria.getOwnerId())
         );
     }
 

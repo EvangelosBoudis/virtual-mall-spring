@@ -15,6 +15,7 @@ public interface StorageService {
 
     Stream<String> findAll();
 
+    // TODO: Optional
     Resource findAsResource(String filename);
 
     String replaceIfExists(@Nullable String filename, @Nullable MultipartFile file);

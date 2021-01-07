@@ -12,6 +12,7 @@ public interface RatesQuerydslRepository {
 
     List<RateDto> findAllRateDtoByProductIds(List<UUID> productIds);
 
+    // TODO: Optional
     Double findAvgRateByProductId(UUID productId);
 
 }
